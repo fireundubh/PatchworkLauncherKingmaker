@@ -391,17 +391,39 @@ namespace PatchworkLauncher
 			}
 		}
 
+		private Process GetLaunchProcess()
+		{
+			var process = new Process();
+
+			if (Settings.Default.ClientPath != string.Empty && File.Exists(Settings.Default.ClientPath))
+			{
+				process.StartInfo.FileName = Settings.Default.ClientPath;
+				process.StartInfo.WorkingDirectory = Path.GetDirectoryName(Settings.Default.ClientPath) ?? throw new InvalidOperationException();
+
+				if (Settings.Default.ClientPath.EndsWith("Steam.exe", StringComparison.InvariantCultureIgnoreCase))
+				{
+					process.StartInfo.Arguments = string.Format("{0} {1}", this.AppInfo.SteamArguments, Settings.Default.Arguments).Trim();
+				}
+				else
+				{
+					process.StartInfo.Arguments = string.Format("{0} {1}", this.AppInfo.GogArguments, Settings.Default.Arguments).Trim();
+				}
+
+				return process;
+			}
+
+			process.StartInfo.FileName = this.AppInfo.Executable.FullName;
+			process.StartInfo.WorkingDirectory = Path.GetDirectoryName(this.AppInfo.Executable.FullName) ?? throw new InvalidOperationException();
+			process.StartInfo.Arguments = Settings.Default.Arguments;
+			process.EnableRaisingEvents = true;
+
+			return process;
+		}
+
 		public void Command_Launch()
 		{
-			Process process = new Process
-			{
-				StartInfo =
-				{
-					FileName = AppInfo.Executable.FullName, WorkingDirectory = Path.GetDirectoryName(this.AppInfo.Executable.FullName) ?? throw new InvalidOperationException(),
-					Arguments = Properties.Settings.Default.Arguments,
-				},
-				EnableRaisingEvents = true
-			};
+			Process process = this.GetLaunchProcess();
+
 			process.Exited += delegate { State.Value = LaunchManagerState.Idle; };
 
 			State.HasChanged += delegate

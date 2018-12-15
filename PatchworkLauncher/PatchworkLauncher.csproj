@@ -78,9 +78,6 @@
     <Reference Include="System.Core">
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.CSharp">
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Drawing">
       <Private>False</Private>
     </Reference>
@@ -118,6 +115,7 @@
     <Compile Include="Binding\Validation\ValidationRule.cs" />
     <Compile Include="Collections\CastList.cs" />
     <Compile Include="Collections\ProjectedList.cs" />
+    <Compile Include="GUI\Helpers\ButtonExtensions.cs" />
     <Compile Include="GUI\Helpers\DisposingBindingList.cs" />
     <Compile Include="Patching\PatchingHelper.cs" />
     <Compile Include="Patching\PatchingProcessException.cs" />
@@ -188,18 +186,6 @@
       <Project>{d68133bd-1e63-496e-9ede-4fbdbf77b486}</Project>
       <Name>Mono.Cecil</Name>
     </ProjectReference>
-    <ProjectReference Include="..\cecil-0.9.6\rocks\Mono.Cecil.Rocks.csproj">
-      <Project>{fbc6dd59-d09d-499c-b03c-99c1c78ff2ac}</Project>
-      <Name>Mono.Cecil.Rocks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\cecil-0.9.6\symbols\mdb\Mono.Cecil.Mdb.csproj">
-      <Project>{8559dd7f-a16f-46d0-a05a-9139faeba8fd}</Project>
-      <Name>Mono.Cecil.Mdb</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\cecil-0.9.6\symbols\pdb\Mono.Cecil.Pdb.csproj">
-      <Project>{63e6915c-7ea4-4d76-ab28-0d7191eea626}</Project>
-      <Name>Mono.Cecil.Pdb</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Patchwork.Attributes\Patchwork.Attributes.csproj">
       <Project>{47dcbaf7-f2e6-486c-8887-fa41c271b74e}</Project>
       <Name>Patchwork.Attributes</Name>
@@ -254,7 +240,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>ECHO py3 "E:\projects\netbootstrap" -f $(ProjectDir)$(OutDir) -o C:\Users\fireundubh\AppData\Local\KingmakerMods.pw\</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <ItemGroup>

@@ -4,7 +4,7 @@ using System.IO;
 namespace Patchwork.AutoPatching
 {
 	/// <summary>
-	/// A simple class that contains information about an application. Should be constructed through the <see cref="AppInfoFactory"/> 
+	/// A simple class that contains information about an application. Should be constructed through the <see cref="AppInfoFactory"/>
 	/// </summary>
 	[Serializable]
 	public sealed class AppInfo
@@ -38,5 +38,25 @@ namespace Patchwork.AutoPatching
 		/// Returns the location of a file from which the icon can be retrieved. Different kinds of files are supported, including executables.
 		/// </summary>
 		public FileInfo IconLocation { get; set; }
+
+		/// <summary>
+		/// A string representing the GOG App ID
+		/// </summary>
+		public string GogAppID { get; set; }
+
+		/// <summary>
+		/// A string of arguments for running the application through Gog
+		/// </summary>
+		public string GogArguments { get; set; }
+
+		/// <summary>
+		/// A string representing the Steam App ID
+		/// </summary>
+		public string SteamAppID { get; set; }
+
+		/// <summary>
+		/// A string of arguments for running the application through Steam
+		/// </summary>
+		public string SteamArguments { get; set; }
 	}
 }

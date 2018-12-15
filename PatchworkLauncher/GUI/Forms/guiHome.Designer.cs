@@ -353,6 +353,7 @@
 			this.Controls.Add(this.guiGameName);
 			this.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+			this.KeyPreview = true;
 			this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.MaximizeBox = false;
 			this.MaximumSize = new System.Drawing.Size(811, 679);
@@ -362,6 +363,7 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Patchwork Launcher";
 			this.Load += new System.EventHandler(this.guiHome_Load);
+			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.guiHome_KeyUp);
 			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.guiHome_MouseDown);
 			((System.ComponentModel.ISupportInitialize)(this.guiGameIcon)).EndInit();
 			this.ResumeLayout(false);
