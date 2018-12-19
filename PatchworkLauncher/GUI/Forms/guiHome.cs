@@ -2,76 +2,67 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Patchwork;
-using Patchwork.Utility.Binding;
+using Patchwork.Engine.Utility;
+using PatchworkLauncher.Enums;
+using PatchworkLauncher.Extensions;
 using PatchworkLauncher.Properties;
 
 namespace PatchworkLauncher
 {
 	public partial class guiHome : Form
 	{
-		public const int WM_NCLBUTTONDOWN = 0xA1;
-		public const int HT_CAPTION = 0x2;
-
-		[DllImport("user32.dll", EntryPoint = "SendMessage", CallingConvention = CallingConvention.StdCall)]
-		public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-
-		[DllImport("user32.dll", EntryPoint = "ReleaseCapture", CallingConvention = CallingConvention.StdCall)]
-		public static extern bool ReleaseCapture();
-
-		public LaunchManager Manager { get; private set; }
+		#region Constructors and Destructors
 
 		public guiHome(LaunchManager manager)
 		{
-			Manager = manager;
-			InitializeComponent();
+			this.Manager = manager;
+			this.InitializeComponent();
 		}
 
-		private void guiHome_Load(object sender, EventArgs e)
+		#endregion
+
+		#region Public Properties
+
+		public static Client Client { get; set; } = Client.None;
+
+		public LaunchManager Manager { get; }
+
+		#endregion
+
+		#region Methods
+
+		private static void ResetData()
 		{
-			this.ControlBox = false;
-
-			guiGameIcon.Image = Manager.ProgramIcon;
-			guiGameIcon.Refresh();
-			guiPwVersion.Text = PatchworkInfo.Version + " (modified by fireundubh)";
-			guiGameName.Text = Manager.AppInfo.AppName;
-			guiGameVersion.Text = "AppInfo v" + Manager.AppInfo.AppVersion;
-			IBindable<bool> isEnabled = Manager.State.Convert(x => x == LaunchManagerState.Idle);
-			this.Bind(x => x.Enabled).Binding = isEnabled.ToBinding(BindingMode.IntoTarget);
-			isEnabled.HasChanged += x =>
-			                        {
-				                        if (x.Value)
-				                        {
-					                        Invoke((Action) (() => this.Focus()));
-				                        }
-			                        };
-
-			Settings.Default.Upgrade();
-			Settings.Default.Reload();
-			Settings.Default.Save();
+			SettingsManager.InvalidateInstructions();
+			HistoryManager.RestorePatchedFiles();
+			HistoryManager.Delete();
+			LaunchManager.Idle();
 		}
 
-		private void btnActiveMods_Click(object sender, EventArgs e)
+		private static void SaveClientPathToSettings(string clientPath)
 		{
-			Manager.Command_OpenMods();
-		}
-
-		private void btnLaunchNoMods_Click(object sender, EventArgs e)
-		{
-			Manager.Command_Launch();
-		}
-
-		private void btnLaunchWithMods_Click(object sender, EventArgs e)
-		{
-			if (this.Manager.Instructions.Count == 0)
+			string[] clients =
 			{
-				MessageBox.Show("No active mods configured.", "Configuration Error", MessageBoxButtons.OK);
-				return;
+				"GalaxyClient.exe",
+				"Steam.exe"
+			};
+
+			foreach (string path in clients.Select(client => Path.Combine(clientPath, client)).Where(File.Exists))
+			{
+				PathSettings.Default.Client = path;
+				break;
 			}
 
-			Manager.Command_Launch_Modded();
+			PathSettings.Default.Save();
+		}
+
+		private static void ShowClientPathMessageBox()
+		{
+			string clientPath = PathSettings.Default.Client.IsNullOrWhitespace() ? "NO CLIENT PATH SET" : PathSettings.Default.Client;
+			MessageBox.Show(clientPath, "Client Path", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
 		}
 
 		// ReSharper disable once MemberCanBeMadeStatic.Local
@@ -86,53 +77,15 @@ namespace PatchworkLauncher
 			// ReSharper disable once InvertIf
 			if (dialog.ShowDialog() == DialogResult.OK)
 			{
-				string[] clients =
-				{
-					"GalaxyClient.exe",
-					"Steam.exe"
-				};
-
-				foreach (string path in clients.Select(client => Path.Combine(dialog.SelectedPath, client)).Where(File.Exists))
-				{
-					Settings.Default.ClientPath = path;
-					break;
-				}
-
-				Settings.Default.Save();
+				SaveClientPathToSettings(dialog.SelectedPath);
 			}
-		}
 
-		// ReSharper disable once MemberCanBeMadeStatic.Local
-		private void btnResetClientPath_Click(object sender, EventArgs e)
-		{
-			Settings.Default.ClientPath = string.Empty;
-			Settings.Default.Save();
+			ShowClientPathMessageBox();
 		}
 
 		private void btnChangeFolder_Click(object sender, EventArgs e)
 		{
-			Manager.Command_ChangeFolder();
-		}
-
-		private void btnTestRun_Click(object sender, EventArgs e)
-		{
-			if (this.Manager.Instructions.Count == 0)
-			{
-				MessageBox.Show("No active mods configured.", "Configuration Error", MessageBoxButtons.OK);
-				return;
-			}
-
-			Manager.Command_TestRun();
-		}
-
-		private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-		{
-			Process.Start(PatchworkInfo.PatchworkSite);
-		}
-
-		private void btnHelp_Click(object sender, EventArgs e)
-		{
-			Manager.Command_Open_Readme();
+			LaunchManager.ChangeFolder();
 		}
 
 		private void btnClearArguments_Click(object sender, EventArgs e)
@@ -143,36 +96,28 @@ namespace PatchworkLauncher
 
 		private void btnClose_Click(object sender, EventArgs e)
 		{
-			if (Application.MessageLoop)
-			{
-				Application.Exit();
-			}
-			else
-			{
-				Environment.Exit(0);
-			}
+			LaunchManager.ExitApplication();
 		}
 
-		private void tbArguments_Leave(object sender, EventArgs e)
+		private void btnHelp_Click(object sender, EventArgs e)
 		{
-			Settings.Default.Arguments = this.tbArguments.Text;
-			Settings.Default.Save();
+			LaunchManager.TryOpenReadme();
 		}
 
-		private void guiHome_MouseDown(object sender, MouseEventArgs e)
+		private void btnLaunchNoMods_Click(object sender, EventArgs e)
 		{
-			if (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX)
+			LaunchManager.LaunchProcess();
+		}
+
+		private async Task btnLaunchWithMods_Click(object sender, EventArgs e)
+		{
+			if (SettingsManager.Instructions.Count != 0)
 			{
+				await this.Manager.LaunchModdedAsync().ConfigureAwait(false);
 				return;
 			}
 
-			if (e.Button != MouseButtons.Left)
-			{
-				return;
-			}
-
-			ReleaseCapture();
-			SendMessage(this.Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+			MessageBox.Show("No active mods configured.", "Configuration Error", MessageBoxButtons.OK);
 		}
 
 		private void btnPatreon_Click(object sender, EventArgs e)
@@ -180,8 +125,46 @@ namespace PatchworkLauncher
 			Process.Start("https://www.patreon.com/fireundubh");
 		}
 
+		// ReSharper disable once MemberCanBeMadeStatic.Local
+		private void btnResetClientPath_Click(object sender, EventArgs e)
+		{
+			PathSettings.Default.Client = string.Empty;
+			PathSettings.Default.Save();
+		}
+
+		private async Task btnTestRun_Click(object sender, EventArgs e)
+		{
+			if (SettingsManager.Instructions.Count != 0)
+			{
+				await this.Manager.TestRunAsync().ConfigureAwait(false);
+				return;
+			}
+
+			MessageBox.Show("No active mods configured.", "Configuration Error", MessageBoxButtons.OK);
+		}
+
+		private void guiHome_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			SettingsManager.InvalidateBaseFolder();
+			SettingsManager.InvalidateInstructions();
+			HistoryManager.RestorePatchedFiles();
+			HistoryManager.Delete();
+
+			// dispose loggers so we can delete empty logs
+			AppContextManager.Dispose();
+			SettingsManager.Dispose();
+			HistoryManager.Dispose();
+			LaunchManager.Dispose();
+			PatchManager.Dispose();
+			PreferencesManager.Dispose();
+
+			// delete empty logs
+			LogManager.DeleteEmptyFiles();
+		}
+
 		private void guiHome_KeyUp(object sender, KeyEventArgs e)
 		{
+			// clear existing click events
 			if (e.KeyCode == Keys.F1 || e.KeyCode == Keys.F2 || e.KeyCode == Keys.F3)
 			{
 				this.btnSetGamePath.ClearClickEvents(this.btnChangeFolder_Click, this.btnChangeClientPath_Click, this.btnResetClientPath_Click);
@@ -201,7 +184,69 @@ namespace PatchworkLauncher
 					this.btnSetGamePath.Text = "RESET CLIENT PATH";
 					this.btnSetGamePath.Click += this.btnResetClientPath_Click;
 					break;
+				case Keys.F4:
+					ShowClientPathMessageBox();
+					break;
 			}
 		}
+
+		private void guiHome_Load(object sender, EventArgs e)
+		{
+			this.ControlBox = false;
+
+			this.guiGameIcon.Image = this.Manager.ProgramIcon;
+			this.guiGameIcon.Refresh();
+			this.guiPwVersion.Text = PatchworkInfo.Version + " (#playwithfire)";
+			this.guiGameName.Text = AppContextManager.Context.AppName;
+			this.guiGameVersion.Text = "AppInfo v" + AppContextManager.Context.AppVersion;
+
+			Settings.Default.Upgrade();
+			Settings.Default.Reload();
+			Settings.Default.Save();
+
+			string clientPath = PathSettings.Default.Client;
+
+			Client = clientPath.IsNullOrWhitespace() ? Client.None : clientPath.EndsWithIgnoreCase("Steam.exe") ? Client.Steam : Client.Galaxy;
+
+			// async click handlers
+			this.btnLaunchNoMods.Click += (o, args) =>
+			                              {
+				                              ResetData();
+											  this.btnLaunchNoMods_Click(o, args);
+			                              };
+
+			this.btnLaunchWithMods.Click += async (o, args) =>
+			                                {
+				                                ResetData();
+												await this.btnLaunchWithMods_Click(o, args);
+			                                };
+
+			this.btnTestRun.Click += async (o, args) =>
+			                         {
+				                         ResetData();
+										 await this.btnTestRun_Click(o, args);
+			                         };
+		}
+
+		private void guiHome_MouseDown(object sender, MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Left)
+			{
+				this.ReleaseCapture();
+			}
+		}
+
+		private void lblPatchwork_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Process.Start(PatchworkInfo.PatchworkSite);
+		}
+
+		private void tbArguments_Leave(object sender, EventArgs e)
+		{
+			Settings.Default.Arguments = this.tbArguments.Text;
+			Settings.Default.Save();
+		}
+
+		#endregion
 	}
 }

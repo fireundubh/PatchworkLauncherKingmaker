@@ -1,25 +1,24 @@
-﻿using System;
-using System.ComponentModel;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Mono.Cecil;
-using Patchwork;
+﻿using System.Xml.Serialization;
 
 namespace PatchworkLauncher
 {
-	public class XmlInstruction
+	public class XmlInstruction : IInstruction
 	{
 		public string Name { get; set; }
 
-		public string PatchPath { get; set; }
+		public string PatchLocation { get; set; }
 
 		[XmlAttribute]
 		public bool IsEnabled { get; set; }
 
 		public static XmlInstruction FromInstruction(PatchInstruction instr)
 		{
-			return new XmlInstruction() {IsEnabled = instr.IsEnabled, Name = instr.Patch.PatchInfo.PatchName, PatchPath = instr.PatchLocation};
+			return new XmlInstruction
+			{
+				IsEnabled = instr.IsEnabled,
+				Name = instr.Patch.PatchInfo.PatchName,
+				PatchLocation = instr.PatchLocation
+			};
 		}
 	}
 }

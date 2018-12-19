@@ -1,4 +1,4 @@
-namespace PatchworkLauncher
+namespace PatchworkLauncher.Enums
 {
 	public enum ColorChannel
 	{

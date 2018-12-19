@@ -32,7 +32,6 @@
 			this.guiGameVersion = new System.Windows.Forms.Label();
 			this.btnLaunchWithMods = new System.Windows.Forms.Button();
 			this.btnLaunchNoMods = new System.Windows.Forms.Button();
-			this.btnActiveMods = new System.Windows.Forms.Button();
 			this.guiPwVersion = new System.Windows.Forms.Label();
 			this.lblVersion = new System.Windows.Forms.Label();
 			this.btnSetGamePath = new System.Windows.Forms.Button();
@@ -47,9 +46,9 @@
 			this.btnPatreon = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.guiGameIcon)).BeginInit();
 			this.SuspendLayout();
-			// 
+			//
 			// guiGameName
-			// 
+			//
 			this.guiGameName.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.guiGameName.BackColor = System.Drawing.Color.Transparent;
 			this.guiGameName.Font = new System.Drawing.Font("Times New Roman", 38F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
@@ -59,9 +58,9 @@
 			this.guiGameName.Size = new System.Drawing.Size(422, 45);
 			this.guiGameName.TabIndex = 14;
 			this.guiGameName.Text = "Pathfinder: Kingmaker";
-			// 
+			//
 			// guiGameVersion
-			// 
+			//
 			this.guiGameVersion.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.guiGameVersion.BackColor = System.Drawing.Color.Transparent;
 			this.guiGameVersion.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
@@ -74,9 +73,9 @@
 			this.guiGameVersion.TabIndex = 1;
 			this.guiGameVersion.Text = "2.0.0.0";
 			this.guiGameVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
+			//
 			// btnLaunchWithMods
-			// 
+			//
 			this.btnLaunchWithMods.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.btnLaunchWithMods.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.btnLaunchWithMods.BackColor = System.Drawing.SystemColors.Control;
@@ -95,10 +94,9 @@
 			this.btnLaunchWithMods.Text = "LAUNCH WITH MODS";
 			this.btnLaunchWithMods.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.btnLaunchWithMods.UseVisualStyleBackColor = false;
-			this.btnLaunchWithMods.Click += new System.EventHandler(this.btnLaunchWithMods_Click);
-			// 
+			//
 			// btnLaunchNoMods
-			// 
+			//
 			this.btnLaunchNoMods.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.btnLaunchNoMods.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.btnLaunchNoMods.BackColor = System.Drawing.SystemColors.Control;
@@ -118,27 +116,9 @@
 			this.btnLaunchNoMods.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.btnLaunchNoMods.UseVisualStyleBackColor = false;
 			this.btnLaunchNoMods.Click += new System.EventHandler(this.btnLaunchNoMods_Click);
-			// 
-			// btnActiveMods
-			// 
-			this.btnActiveMods.Anchor = System.Windows.Forms.AnchorStyles.Top;
-			this.btnActiveMods.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.btnActiveMods.BackColor = System.Drawing.SystemColors.Control;
-			this.btnActiveMods.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-			this.btnActiveMods.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Azure;
-			this.btnActiveMods.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
-			this.btnActiveMods.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-			this.btnActiveMods.Location = new System.Drawing.Point(490, 227);
-			this.btnActiveMods.Margin = new System.Windows.Forms.Padding(0);
-			this.btnActiveMods.Name = "btnActiveMods";
-			this.btnActiveMods.Size = new System.Drawing.Size(120, 24);
-			this.btnActiveMods.TabIndex = 8;
-			this.btnActiveMods.Text = "ACTIVE MODS";
-			this.btnActiveMods.UseVisualStyleBackColor = false;
-			this.btnActiveMods.Click += new System.EventHandler(this.btnActiveMods_Click);
-			// 
+			//
 			// guiPwVersion
-			// 
+			//
 			this.guiPwVersion.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.guiPwVersion.AutoSize = true;
 			this.guiPwVersion.BackColor = System.Drawing.Color.Transparent;
@@ -153,9 +133,9 @@
 			this.guiPwVersion.TabIndex = 13;
 			this.guiPwVersion.Text = "???";
 			this.guiPwVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			// 
+			//
 			// lblVersion
-			// 
+			//
 			this.lblVersion.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblVersion.BackColor = System.Drawing.Color.Transparent;
 			this.lblVersion.Font = new System.Drawing.Font("Arial", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
@@ -169,9 +149,9 @@
 			this.lblVersion.TabIndex = 12;
 			this.lblVersion.Text = "Version:";
 			this.lblVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
+			//
 			// btnSetGamePath
-			// 
+			//
 			this.btnSetGamePath.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.btnSetGamePath.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.btnSetGamePath.BackColor = System.Drawing.SystemColors.Control;
@@ -179,7 +159,7 @@
 			this.btnSetGamePath.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Azure;
 			this.btnSetGamePath.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
 			this.btnSetGamePath.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-			this.btnSetGamePath.Location = new System.Drawing.Point(364, 227);
+			this.btnSetGamePath.Location = new System.Drawing.Point(490, 228);
 			this.btnSetGamePath.Margin = new System.Windows.Forms.Padding(0);
 			this.btnSetGamePath.Name = "btnSetGamePath";
 			this.btnSetGamePath.Size = new System.Drawing.Size(120, 24);
@@ -187,9 +167,9 @@
 			this.btnSetGamePath.Text = "SET GAME PATH";
 			this.btnSetGamePath.UseVisualStyleBackColor = false;
 			this.btnSetGamePath.Click += new System.EventHandler(this.btnChangeFolder_Click);
-			// 
+			//
 			// btnTestRun
-			// 
+			//
 			this.btnTestRun.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.btnTestRun.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.btnTestRun.BackColor = System.Drawing.SystemColors.Control;
@@ -206,10 +186,9 @@
 			this.btnTestRun.TabIndex = 3;
 			this.btnTestRun.Text = "TEST RUN";
 			this.btnTestRun.UseVisualStyleBackColor = false;
-			this.btnTestRun.Click += new System.EventHandler(this.btnTestRun_Click);
-			// 
+			//
 			// lblPatchwork
-			// 
+			//
 			this.lblPatchwork.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblPatchwork.Font = new System.Drawing.Font("Arial", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
 			this.lblPatchwork.Location = new System.Drawing.Point(12, 233);
@@ -220,10 +199,10 @@
 			this.lblPatchwork.TabStop = true;
 			this.lblPatchwork.Text = "Patchwork";
 			this.lblPatchwork.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblPatchwork.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
-			// 
+			this.lblPatchwork.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblPatchwork_LinkClicked);
+			//
 			// btnHelp
-			// 
+			//
 			this.btnHelp.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.btnHelp.BackColor = System.Drawing.SystemColors.Control;
 			this.btnHelp.FlatAppearance.BorderColor = System.Drawing.Color.Black;
@@ -239,9 +218,9 @@
 			this.btnHelp.Text = "?";
 			this.btnHelp.UseVisualStyleBackColor = false;
 			this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
-			// 
+			//
 			// tbArguments
-			// 
+			//
 			this.tbArguments.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.tbArguments.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			this.tbArguments.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -254,9 +233,9 @@
 			this.tbArguments.TabIndex = 5;
 			this.tbArguments.Text = global::PatchworkLauncher.Properties.Settings.Default.Arguments;
 			this.tbArguments.Leave += new System.EventHandler(this.tbArguments_Leave);
-			// 
+			//
 			// lblArguments
-			// 
+			//
 			this.lblArguments.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblArguments.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
 			this.lblArguments.ForeColor = System.Drawing.SystemColors.ControlLightLight;
@@ -266,9 +245,9 @@
 			this.lblArguments.TabIndex = 14;
 			this.lblArguments.Text = "Command Line Arguments";
 			this.lblArguments.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
+			//
 			// btnClearArguments
-			// 
+			//
 			this.btnClearArguments.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.btnClearArguments.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.btnClearArguments.BackColor = System.Drawing.SystemColors.ControlLight;
@@ -284,9 +263,9 @@
 			this.btnClearArguments.Text = "CLEAR";
 			this.btnClearArguments.UseVisualStyleBackColor = false;
 			this.btnClearArguments.Click += new System.EventHandler(this.btnClearArguments_Click);
-			// 
+			//
 			// btnClose
-			// 
+			//
 			this.btnClose.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.btnClose.BackColor = System.Drawing.SystemColors.Control;
 			this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -299,9 +278,9 @@
 			this.btnClose.Text = "X";
 			this.btnClose.UseVisualStyleBackColor = false;
 			this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
-			// 
+			//
 			// guiGameIcon
-			// 
+			//
 			this.guiGameIcon.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.guiGameIcon.InitialImage = null;
 			this.guiGameIcon.Location = new System.Drawing.Point(11, 34);
@@ -310,9 +289,9 @@
 			this.guiGameIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.guiGameIcon.TabIndex = 8;
 			this.guiGameIcon.TabStop = false;
-			// 
+			//
 			// btnPatreon
-			// 
+			//
 			this.btnPatreon.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.btnPatreon.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.btnPatreon.FlatAppearance.BorderSize = 0;
@@ -325,9 +304,9 @@
 			this.btnPatreon.TabIndex = 2;
 			this.btnPatreon.UseVisualStyleBackColor = false;
 			this.btnPatreon.Click += new System.EventHandler(this.btnPatreon_Click);
-			// 
+			//
 			// guiHome
-			// 
+			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -346,7 +325,6 @@
 			this.Controls.Add(this.guiGameIcon);
 			this.Controls.Add(this.lblVersion);
 			this.Controls.Add(this.guiPwVersion);
-			this.Controls.Add(this.btnActiveMods);
 			this.Controls.Add(this.btnLaunchNoMods);
 			this.Controls.Add(this.btnLaunchWithMods);
 			this.Controls.Add(this.guiGameVersion);
@@ -362,6 +340,7 @@
 			this.ShowIcon = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Patchwork Launcher";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.guiHome_FormClosing);
 			this.Load += new System.EventHandler(this.guiHome_Load);
 			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.guiHome_KeyUp);
 			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.guiHome_MouseDown);
@@ -377,7 +356,6 @@
 		private System.Windows.Forms.Label guiGameVersion;
 		private System.Windows.Forms.Button btnLaunchWithMods;
 		private System.Windows.Forms.Button btnLaunchNoMods;
-		private System.Windows.Forms.Button btnActiveMods;
 		private System.Windows.Forms.Label guiPwVersion;
 		private System.Windows.Forms.Label lblVersion;
 		private System.Windows.Forms.PictureBox guiGameIcon;

@@ -25,6 +25,7 @@ namespace PatchworkLauncher
 		PerformingSwitch,
 	}
 
+	/// <inheritdoc />
 	public class PatchingProcessException : Exception
 	{
 		private string _targetFile;
@@ -41,14 +42,17 @@ namespace PatchworkLauncher
 
 		public PatchProcessingStep Step { get; set; }
 
+		/// <inheritdoc />
 		public PatchingProcessException(Exception innerException) : base(null, innerException)
 		{
 		}
 
+		/// <inheritdoc />
 		public PatchingProcessException(string message) : base(message)
 		{
 		}
 
+		/// <inheritdoc />
 		public PatchingProcessException(string message, Exception innerException) : base(message, innerException)
 		{
 		}

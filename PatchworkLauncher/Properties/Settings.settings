@@ -5,8 +5,8 @@
     <Setting Name="Arguments" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="ClientPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+    <Setting Name="LogExtension" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.log</Value>
     </Setting>
   </Settings>
 </SettingsFile>

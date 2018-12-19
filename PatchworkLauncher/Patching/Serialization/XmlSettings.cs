@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Xml.Serialization;
-using Patchwork;
-using Patchwork.Utility;
+using PatchworkLauncher.Comparers;
 
 namespace PatchworkLauncher
 {
@@ -18,7 +16,18 @@ namespace PatchworkLauncher
 
 		public static XmlSettings FromInstructionSeq(IEnumerable<PatchInstruction> instrSeq)
 		{
-			return new XmlSettings() {Instructions = instrSeq?.Select(XmlInstruction.FromInstruction).ToList() ?? new List<XmlInstruction>()};
+			return new XmlSettings
+			{
+				Instructions = instrSeq?.Select(XmlInstruction.FromInstruction).Distinct(new PatchPathEqualityComparer()).ToList() ?? new List<XmlInstruction>()
+			};
+		}
+
+		public static XmlSettings FromInstructionSeq(IEnumerable<XmlInstruction> instrSeq)
+		{
+			return new XmlSettings
+			{
+				Instructions = instrSeq?.Distinct(new PatchPathEqualityComparer()).ToList() ?? new List<XmlInstruction>()
+			};
 		}
 	}
 }

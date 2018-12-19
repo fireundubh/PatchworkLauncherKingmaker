@@ -37,13 +37,13 @@ namespace PatchworkLauncher.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ClientPath {
+        [global::System.Configuration.DefaultSettingValueAttribute(".log")]
+        public string LogExtension {
             get {
-                return ((string)(this["ClientPath"]));
+                return ((string)(this["LogExtension"]));
             }
             set {
-                this["ClientPath"] = value;
+                this["LogExtension"] = value;
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Patchwork.Utility;
 using Patchwork.Utility.Binding;
+using PatchworkLauncher.Extensions;
 
 namespace PatchworkLauncher
 {
@@ -27,10 +28,10 @@ namespace PatchworkLauncher
 				                                                 Label botLabel = new Label {Width = guiPanel.Width - 30, AutoSize = true};
 				                                                 ProgressBar progBar = new ProgressBar {Margin = new Padding(0, 5, 0, 0), Width = guiPanel.Width - 30, AutoSize = true};
 
-				                                                 po.TaskTitle.Binding = topLabel.Bind(x => x.Text).ToBinding(BindingMode.FromTarget);
-				                                                 po.TaskText.Binding = botLabel.Bind(x => x.Text).ToBinding(BindingMode.FromTarget);
-				                                                 po.Total.Binding = progBar.Bind(x => x.Maximum).ToBinding(BindingMode.FromTarget);
-				                                                 po.Current.Binding = progBar.Bind(x => x.Value).ToBinding(BindingMode.FromTarget);
+				                                                 po.TaskTitle.Binding = GuiBindings.Bind(topLabel, x => x.Text).ToBinding(BindingMode.FromTarget);
+				                                                 po.TaskText.Binding = GuiBindings.Bind(botLabel, x => x.Text).ToBinding(BindingMode.FromTarget);
+				                                                 po.Total.Binding = GuiBindings.Bind(progBar, x => x.Maximum).ToBinding(BindingMode.FromTarget);
+				                                                 po.Current.Binding = GuiBindings.Bind(progBar, x => x.Value).ToBinding(BindingMode.FromTarget);
 
 				                                                 progBar.Maximum = po.Total.Value;
 				                                                 progBar.Value = po.Current.Value;

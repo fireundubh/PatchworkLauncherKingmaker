@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Windows.Forms;
-using Patchwork.Utility;
 using Patchwork.Utility.Binding;
 
-namespace PatchworkLauncher
+namespace PatchworkLauncher.Extensions
 {
-	public static class GuiExt
+	public static class GuiExtensions
 	{
 		public static void ShowOrFocus(this Form form)
 		{
@@ -34,6 +33,7 @@ namespace PatchworkLauncher
 
 	public static class GuiBindings
 	{
+		/// <exception cref="T:System.Exception">The <paramref name="act"/> delegate callback throws an exception.</exception>
 		public static IBindable<TValue> Bind<TControl, TValue>(this TControl control, Expression<Func<TControl, TValue>> memberAccess, string refreshEvent = null) where TControl : Control
 		{
 			Action<Action> dispatcher = act =>
@@ -47,7 +47,7 @@ namespace PatchworkLauncher
 					                            act();
 				                            }
 			                            };
-			var notification = refreshEvent == null ? null : new EventRaised(refreshEvent);
+			EventRaised notification = refreshEvent == null ? null : new EventRaised(refreshEvent);
 			return control.Bind(memberAccess, notification).WithDispatcher(dispatcher);
 		}
 	}

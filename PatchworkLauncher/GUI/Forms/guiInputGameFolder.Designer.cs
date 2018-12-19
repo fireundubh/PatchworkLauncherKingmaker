@@ -153,7 +153,6 @@
 			this.MinimizeBox = false;
 			this.Name = "guiInputGameFolder";
 			this.ShowIcon = false;
-			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Set Game Path";
 			this.Load += new System.EventHandler(this.guiInputGameFolder_Load);
