@@ -1,24 +1,33 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Xml.Serialization;
 
 namespace PatchworkLauncher
 {
 	public class XmlInstruction : IInstruction
 	{
-		public string Name { get; set; }
-
-		public string PatchLocation { get; set; }
+		#region Public Properties
 
 		[XmlAttribute]
 		public bool IsEnabled { get; set; }
 
-		public static XmlInstruction FromInstruction(PatchInstruction instr)
+		public string Name { get; set; }
+
+		public string Location { get; set; }
+
+		#endregion
+
+		#region Public Methods and Operators
+
+		public static XmlInstruction FromInstruction(PatchInstruction instruction)
 		{
 			return new XmlInstruction
 			{
-				IsEnabled = instr.IsEnabled,
-				Name = instr.Patch.PatchInfo.PatchName,
-				PatchLocation = instr.PatchLocation
+				IsEnabled = instruction.IsEnabled,
+				Name = instruction.Patch.PatchInfo.PatchName,
+				Location = instruction.Location
 			};
 		}
+
+		#endregion
 	}
 }

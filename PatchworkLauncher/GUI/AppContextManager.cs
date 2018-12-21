@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Windows.Forms;
 using Patchwork.AutoPatching;
 using Patchwork.Engine.Utility;
-using PatchworkLauncher.Properties;
+using PatchworkLauncher.FolderBrowserDialogSettings;
 using Serilog;
 
 namespace PatchworkLauncher
@@ -13,7 +14,7 @@ namespace PatchworkLauncher
 
 		static AppContextManager()
 		{
-			FullPath = Path.GetFullPath(PathSettings.Default.AppInfo);
+			FullPath = Path.GetFullPath(SettingsManager.XmlSettings.Launcher.Files.AppInfo);
 			Logger = LogManager.CreateLogger("AppContextManager");
 		}
 
@@ -35,9 +36,26 @@ namespace PatchworkLauncher
 
 		#region Public Methods and Operators
 
+		public static DialogResult AskPath(IFolderBrowserDialogSettings settings)
+		{
+			DialogResult result;
+
+			using (var dialog = new FolderBrowserDialog { Description = settings.Description, ShowNewFolderButton = false })
+			{
+				result = dialog.ShowDialog();
+
+				if (result == DialogResult.OK)
+				{
+					settings.Save(dialog.SelectedPath);
+				}
+			}
+
+			return result;
+		}
+
 		public static void Dispose()
 		{
-			((IDisposable)Logger).Dispose();
+			((IDisposable) Logger)?.Dispose();
 		}
 
 		public static void Setup()
@@ -50,11 +68,16 @@ namespace PatchworkLauncher
 
 		#region Methods
 
+		private static AppInfoFactory GetFactory()
+		{
+			return File.Exists(FullPath) ? PatchingHelper.LoadAppInfoFactory(FullPath) : null;
+		}
+
 		private static void CreateInstance(AppInfoFactory appInfoFactory)
 		{
-			if (appInfoFactory != null && !SettingsManager.BaseFolder.IsNullOrWhitespace())
+			if (appInfoFactory != null && !SettingsManager.XmlData.GamePath.IsNullOrWhitespace())
 			{
-				var directoryInfo = new DirectoryInfo(SettingsManager.BaseFolder);
+				var directoryInfo = new DirectoryInfo(SettingsManager.XmlData.GamePath);
 				Context = appInfoFactory.CreateInfo(directoryInfo);
 				return;
 			}
@@ -64,11 +87,6 @@ namespace PatchworkLauncher
 			Context = new AppInfo();
 			Context.AppName = "No AppInfo.dll";
 			Context.AppVersion = "version??";
-		}
-
-		private static AppInfoFactory GetFactory()
-		{
-			return File.Exists(FullPath) ? PatchingHelper.LoadAppInfoFactory(FullPath) : null;
 		}
 
 		#endregion

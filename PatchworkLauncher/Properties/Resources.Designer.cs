@@ -89,5 +89,32 @@ namespace PatchworkLauncher.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Patchwork Launcher is locked while the game is running.{0}{1}{2} (PID: {3}).
+        /// </summary>
+        internal static string UnlockRunningFormat {
+            get {
+                return ResourceManager.GetString("UnlockRunningFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Patchwork Launcher is locked while the game is running..
+        /// </summary>
+        internal static string UnlockRunningText {
+            get {
+                return ResourceManager.GetString("UnlockRunningText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Patchwork Launcher is locked during the test run process..
+        /// </summary>
+        internal static string UnlockTestRunFormat {
+            get {
+                return ResourceManager.GetString("UnlockTestRunFormat", resourceCulture);
+            }
+        }
     }
 }

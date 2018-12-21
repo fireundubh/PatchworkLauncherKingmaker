@@ -2,16 +2,20 @@
 
 namespace PatchworkLauncher.Comparers
 {
-	public class PatchPathEqualityComparer : IEqualityComparer<XmlInstruction>
+	public class PatchLocationEqualityComparer : IEqualityComparer<XmlInstruction>
 	{
+		#region Public Methods and Operators
+
 		public bool Equals(XmlInstruction x, XmlInstruction y)
 		{
-			return x.PatchLocation == y.PatchLocation;
+			return x?.Location == y?.Location;
 		}
 
 		public int GetHashCode(XmlInstruction obj)
 		{
-			return obj.PatchLocation.GetHashCode();
+			return obj.Location.GetHashCode();
 		}
+
+		#endregion
 	}
 }

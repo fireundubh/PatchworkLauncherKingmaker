@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
-using PatchworkLauncher.Properties;
 using Serilog;
 
 namespace PatchworkLauncher
 {
+	/// <summary>
+	/// Requires <paramref name="SettingsManager"/>
+	/// </summary>
 	public static class LogManager
 	{
 		#region Constructors and Destructors
 
 		static LogManager()
 		{
-			FileExtension = Settings.Default.LogExtension;
-			LogsDirectory = Path.GetFullPath(PathSettings.Default.Logs);
+			FileExtension = ".log";
+			LogsDirectory = Path.GetFullPath(SettingsManager.XmlData.LogsPath);
 		}
 
 		#endregion
@@ -41,23 +45,15 @@ namespace PatchworkLauncher
 			return logConfig.CreateLogger();
 		}
 
-		/// <exception cref="T:System.IO.DirectoryNotFoundException">The specified path is invalid (for example, it is on an unmapped drive).</exception>
-		/// <exception cref="T:System.IO.IOException">The specified file is in use. -or-There is an open handle on the file, and the operating system is Windows XP or earlier. This open handle can result from enumerating directories and files. For more information, see How to: Enumerate Directories and Files.</exception>
-		/// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission.</exception>
-		/// <exception cref="T:System.UnauthorizedAccessException">Access to <paramref name="fileName" /> is denied.</exception>
 		public static void DeleteEmptyFiles()
 		{
-			string[] files = Directory.GetFiles(LogsDirectory, string.Concat("*.", FileExtension));
+			string searchPattern = string.Concat("*", FileExtension);
 
-			foreach (string file in files)
+			IEnumerable<FileInfo> files = Directory.GetFiles(LogsDirectory, searchPattern).Select(x => new FileInfo(x));
+
+			foreach (FileInfo fileInfo in files.Where(f => f.Length == 0))
 			{
-				var fileInfo = new FileInfo(file);
-				if (fileInfo.Length > 0)
-				{
-					continue;
-				}
-
-				File.Delete(file);
+				File.Delete(fileInfo.FullName);
 			}
 		}
 

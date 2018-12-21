@@ -49,7 +49,7 @@
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>IconSmall.ico</ApplicationIcon>
@@ -77,12 +77,13 @@
       <HintPath>..\packages\Serilog.2.7.1\lib\net46\Serilog.dll</HintPath>
     </Reference>
     <Reference Include="Serilog.Sinks.File, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <HintPath>..\packages\Serilog.Sinks.File.4.0.1-dev-00801\lib\net45\Serilog.Sinks.File.dll</HintPath>
+      <HintPath>..\packages\Serilog.Sinks.File.4.0.0\lib\net45\Serilog.Sinks.File.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing">
       <Private>False</Private>
     </Reference>
@@ -129,34 +130,42 @@
     <Compile Include="GUI\AppContextManager.cs" />
     <Compile Include="GUI\ExceptionManager.cs" />
     <Compile Include="Enums\Client.cs" />
-    <Compile Include="GUI\CustomExceptionMessage.cs" />
-    <Compile Include="GUI\Helpers\DisposingBindingList.cs" />
+    <Compile Include="GUI\Forms\UnlockMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\Forms\UnlockMessageBox.Designer.cs">
+      <DependentUpon>UnlockMessageBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Helpers\PatchingExceptionMessage.cs" />
     <Compile Include="Extensions\User32Extensions.cs" />
+    <Compile Include="GUI\FolderBrowserDialogSettings\ClientFolderBrowserDialogSettings.cs" />
+    <Compile Include="GUI\FolderBrowserDialogSettings\GameFolderBrowserDialogSettings.cs" />
+    <Compile Include="GUI\FolderBrowserDialogSettings\IFolderBrowserDialogSettings.cs" />
     <Compile Include="GUI\HistoryManager.cs" />
     <Compile Include="GUI\LogManager.cs" />
     <Compile Include="GUI\PatchManager.cs" />
     <Compile Include="GUI\PreferencesManager.cs" />
     <Compile Include="Extensions\RegistryExtensions.cs" />
     <Compile Include="GUI\SettingsManager.cs" />
-    <Compile Include="Patching\Comparers\PatchPathEqualityComparer.cs" />
+    <Compile Include="Patching\Comparers\PatchFileNameEqualityComparer.cs" />
+    <Compile Include="Patching\Comparers\PatchLocationEqualityComparer.cs" />
     <Compile Include="Enums\LaunchManagerState.cs" />
     <Compile Include="Patching\IInstruction.cs" />
     <Compile Include="Patching\PatchingHelper.cs" />
     <Compile Include="Patching\PatchingProcessException.cs" />
     <Compile Include="Patching\PatchInstruction.cs" />
     <Compile Include="Patching\PatchInstructionSequence.cs" />
+    <Compile Include="Patching\Serialization\XmlConfiguration.cs" />
     <Compile Include="Patching\Serialization\XmlFileHistory.cs" />
+    <Compile Include="Patching\Serialization\XmlFolders.cs" />
     <Compile Include="Patching\Serialization\XmlInstruction.cs" />
+    <Compile Include="Patching\Serialization\XmlFiles.cs" />
+    <Compile Include="Patching\Serialization\XmlOptions.cs" />
     <Compile Include="Patching\Serialization\XmlPreferences.cs" />
+    <Compile Include="Patching\Serialization\XmlRegistry.cs" />
     <Compile Include="Patching\Serialization\XmlSettings.cs" />
     <Compile Include="Patching\Serialization\XmlPatchHistory.cs" />
     <Compile Include="Patching\Serialization\XmlHistory.cs" />
-    <Compile Include="GUI\Forms\guiInputGameFolder.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GUI\Forms\guiInputGameFolder.Designer.cs">
-      <DependentUpon>guiInputGameFolder.cs</DependentUpon>
-    </Compile>
     <Compile Include="GUI\Forms\LogForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -166,30 +175,20 @@
     <Compile Include="GUI\LaunchManager.cs" />
     <Compile Include="Enums\ColorChannel.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
-    <Compile Include="GUI\Forms\guiHome.cs">
+    <Compile Include="GUI\Forms\MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GUI\Forms\guiHome.Designer.cs">
-      <DependentUpon>guiHome.cs</DependentUpon>
+    <Compile Include="GUI\Forms\MainWindow.Designer.cs">
+      <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\GuiExtensions.cs" />
     <Compile Include="MiscExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\PathSettings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>PathSettings.settings</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="UI Hooks\IProgressObject.cs" />
     <Compile Include="UI Hooks\ProgressList.cs" />
@@ -197,9 +196,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EmbeddedResource Include="GUI\Forms\guiInputGameFolder.resx">
-      <DependentUpon>guiInputGameFolder.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cecil-0.9.6\Mono.Cecil.csproj">
@@ -217,23 +213,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Properties\PathSettings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>PathSettings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
     <None Include="Resources\IconSmall.png" />
     <None Include="Resources\IconMed.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="GUI\Forms\guiHome.resx">
-      <DependentUpon>guiHome.cs</DependentUpon>
+    <EmbeddedResource Include="GUI\Forms\MainWindow.resx">
+      <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\Forms\LogForm.resx">
       <DependentUpon>LogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\Forms\UnlockMessageBox.resx">
+      <DependentUpon>UnlockMessageBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

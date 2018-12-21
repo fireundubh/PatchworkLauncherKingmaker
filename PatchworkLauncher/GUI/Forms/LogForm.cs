@@ -10,48 +10,102 @@ namespace PatchworkLauncher
 {
 	public partial class LogForm : Form
 	{
-		public IBindable<IList<ProgressObject>> List { get; }
+		#region Constructors and Destructors
 
 		public LogForm(ProgressObject list)
 		{
-			List = Bindable.List(new ProgressList(list));
-			InitializeComponent();
+			this.List = Bindable.List(new ProgressList(list));
+			this.InitializeComponent();
+		}
+
+		#endregion
+
+		#region Public Properties
+
+		public IBindable<IList<ProgressObject>> List { get; }
+
+		#endregion
+
+		#region Methods
+
+		private Control BuildProgressBar(ProgressObject progressObject)
+		{
+			Label topLabel = this.CreateTopLabel(progressObject);
+
+			Label bottomLabel = this.CreateBottomLabel(progressObject);
+
+			ProgressBar progressBar = this.CreateProgressBar();
+
+			FlowLayoutPanel flowLayoutPanel = this.CreateFlowLayoutPanel();
+
+			progressObject.TaskTitle.Binding = GuiBindings.Bind(topLabel, x => x.Text).ToBinding(BindingMode.FromTarget);
+			progressObject.TaskText.Binding = GuiBindings.Bind(bottomLabel, x => x.Text).ToBinding(BindingMode.FromTarget);
+			progressObject.Total.Binding = GuiBindings.Bind(progressBar, x => x.Maximum).ToBinding(BindingMode.FromTarget);
+			progressObject.Current.Binding = GuiBindings.Bind(progressBar, x => x.Value).ToBinding(BindingMode.FromTarget);
+
+			progressBar.Maximum = progressObject.Total.Value;
+			progressBar.Value = progressObject.Current.Value;
+
+			flowLayoutPanel.Controls.AddRange(new[]
+			{
+				(Control) topLabel,
+				bottomLabel,
+				progressBar
+			});
+
+			return flowLayoutPanel;
+		}
+
+		private FlowLayoutPanel CreateFlowLayoutPanel()
+		{
+			var flowLayoutPanel = new FlowLayoutPanel();
+			flowLayoutPanel.FlowDirection = FlowDirection.TopDown;
+			flowLayoutPanel.Margin = new Padding(10, 5, 10, 5);
+			flowLayoutPanel.Width = this.guiPanel.Width - 30;
+			flowLayoutPanel.BorderStyle = BorderStyle.None;
+			return flowLayoutPanel;
+		}
+
+		private Label CreateBottomLabel(ProgressObject progressObject)
+		{
+			var bottomLabel = new Label();
+			bottomLabel.Width = this.guiPanel.Width - 30;
+			bottomLabel.AutoSize = true;
+			bottomLabel.TextChanged += (sender, args) => progressObject.TaskText.Value = bottomLabel.Text;
+			return bottomLabel;
+		}
+
+		private Label CreateTopLabel(ProgressObject progressObject)
+		{
+			var topLabel = new Label();
+			topLabel.Margin = new Padding(0, 5, 0, 5);
+			topLabel.Font = new Font(this.Font.FontFamily, 12f, FontStyle.Bold);
+			topLabel.Width = this.guiPanel.Width - 30;
+			topLabel.AutoSize = true;
+			topLabel.TextChanged += (sender, args) => progressObject.TaskTitle.Value = topLabel.Text;
+			return topLabel;
+		}
+
+		private ProgressBar CreateProgressBar()
+		{
+			var progressBar = new ProgressBar();
+			progressBar.Margin = new Padding(5, 5, 0, 0);
+			progressBar.Width = this.guiPanel.Width - 30;
+			progressBar.AutoSize = true;
+			progressBar.Style = ProgressBarStyle.Continuous;
+			return progressBar;
 		}
 
 		private void LogForm_Load(object sender, EventArgs e)
 		{
-			guiPanel.FlowDirection = FlowDirection.TopDown;
-			guiPanel.Controls.Clear();
-			Func<ProgressObject, Control> progressTemplate = po =>
-			                                                 {
-				                                                 Label topLabel = new Label {Margin = new Padding(0, 5, 0, 5), Font = new Font(Font.FontFamily, 12f, FontStyle.Bold), Width = guiPanel.Width - 30, AutoSize = true};
-				                                                 Label botLabel = new Label {Width = guiPanel.Width - 30, AutoSize = true};
-				                                                 ProgressBar progBar = new ProgressBar {Margin = new Padding(0, 5, 0, 0), Width = guiPanel.Width - 30, AutoSize = true};
+			this.guiPanel.FlowDirection = FlowDirection.TopDown;
+			this.guiPanel.Controls.Clear();
 
-				                                                 po.TaskTitle.Binding = GuiBindings.Bind(topLabel, x => x.Text).ToBinding(BindingMode.FromTarget);
-				                                                 po.TaskText.Binding = GuiBindings.Bind(botLabel, x => x.Text).ToBinding(BindingMode.FromTarget);
-				                                                 po.Total.Binding = GuiBindings.Bind(progBar, x => x.Maximum).ToBinding(BindingMode.FromTarget);
-				                                                 po.Current.Binding = GuiBindings.Bind(progBar, x => x.Value).ToBinding(BindingMode.FromTarget);
+			Func<ProgressObject, Control> progressTemplate = this.BuildProgressBar;
 
-				                                                 progBar.Maximum = po.Total.Value;
-				                                                 progBar.Value = po.Current.Value;
-				                                                 FlowLayoutPanel flowThing = new FlowLayoutPanel {FlowDirection = FlowDirection.TopDown, Margin = new Padding(10, 5, 10, 5), Width = guiPanel.Width - 30};
-				                                                 flowThing.Controls.AddRange(new[] {(Control) topLabel, botLabel, progBar});
-				                                                 return flowThing;
-			                                                 };
-			List.Binding = guiPanel.Controls.CastList().ProjectList(progressTemplate).ToBindable().WithDispatcher(act => Invoke(act)).ToBinding(BindingMode.FromTarget);
+			this.List.Binding = this.guiPanel.Controls.CastList().ProjectList(progressTemplate).ToBindable().WithDispatcher(act => this.Invoke(act)).ToBinding(BindingMode.FromTarget);
 		}
 
-//		public ILogger Logger {
-//			get;
-//		}
-
-		public void Test()
-		{
-		}
-
-		private void guiPanel_Paint(object sender, PaintEventArgs e)
-		{
-		}
+		#endregion
 	}
 }

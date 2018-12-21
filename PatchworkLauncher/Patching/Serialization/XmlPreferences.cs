@@ -6,12 +6,16 @@ namespace PatchworkLauncher
 	[XmlRoot("Preferences")]
 	public class XmlPreferences
 	{
-		public bool AlwaysPatch { get; set; } = false;
+		#region Public Properties
 
-		public bool DontCopyFiles { get; set; }
+		public bool AlwaysPatch { get; set; } = true;
+
+		public bool DontCopyFiles { get; set; } = true;
 
 		public bool OpenLogAfterPatch { get; set; } = false;
 
 		public LogEventLevel MinimumEventLevel { get; set; } = LogEventLevel.Information;
+
+		#endregion
 	}
 }

@@ -33,34 +33,35 @@
 			// 
 			// guiPanel
 			// 
-			this.guiPanel.AutoSize = true;
 			this.guiPanel.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.guiPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
 			this.guiPanel.Location = new System.Drawing.Point(0, 0);
-			this.guiPanel.Margin = new System.Windows.Forms.Padding(5);
+			this.guiPanel.Margin = new System.Windows.Forms.Padding(0);
 			this.guiPanel.Name = "guiPanel";
 			this.guiPanel.Size = new System.Drawing.Size(450, 350);
 			this.guiPanel.TabIndex = 0;
-			this.guiPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.guiPanel_Paint);
 			// 
 			// LogForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.BackColor = System.Drawing.Color.Linen;
+			this.AutoSize = true;
+			this.BackColor = System.Drawing.Color.Black;
 			this.ClientSize = new System.Drawing.Size(450, 350);
 			this.ControlBox = false;
 			this.Controls.Add(this.guiPanel);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.DoubleBuffered = true;
+			this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "LogForm";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Working...";
+			this.TopMost = true;
 			this.Load += new System.EventHandler(this.LogForm_Load);
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
 		}
 

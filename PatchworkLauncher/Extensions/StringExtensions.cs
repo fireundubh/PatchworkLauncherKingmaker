@@ -1,16 +1,20 @@
 ﻿using System;
-using System.Configuration;
-using System.IO;
 using System.Text;
-using PatchworkLauncher.Properties;
 
-namespace PatchworkLauncher
+namespace PatchworkLauncher.Extensions
 {
 	public static class StringExtensions
 	{
+		#region Public Methods and Operators
+
 		public static bool EndsWithIgnoreCase(this string instance, string value)
 		{
 			return instance.EndsWith(value, StringComparison.InvariantCultureIgnoreCase);
+		}
+
+		public static bool StartsWithIgnoreCase(this string instance, string value)
+		{
+			return instance.StartsWith(value, StringComparison.InvariantCultureIgnoreCase);
 		}
 
 		public static string Quote(this string value, char enclosure = '"')
@@ -22,5 +26,7 @@ namespace PatchworkLauncher
 		{
 			return !conditional ? sb : sb.AppendFormat(format, args).AppendLine();
 		}
+
+		#endregion
 	}
 }

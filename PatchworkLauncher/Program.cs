@@ -13,11 +13,14 @@ namespace PatchworkLauncher
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
+
 			PreferencesManager.Initialize();
 			SettingsManager.Initialize();
 			HistoryManager.Delete();
+
 			var manager = new LaunchManager();
 			manager.StartHomeWindow();
+
 			Application.Run();
 		}
 	}

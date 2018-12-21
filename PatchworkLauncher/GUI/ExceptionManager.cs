@@ -36,15 +36,18 @@ namespace PatchworkLauncher
 			return string.Empty;
 		}
 
-		public static void ShowMessageBox(this Exception exception, CustomExceptionMessage message, ILogger logger)
+		public static DialogResult Show(this ILogger logger, PatchingExceptionMessage message)
 		{
 			string exceptionMessage = message.ToString();
 			logger.Error(exceptionMessage);
-			MessageBox.Show(exceptionMessage, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+			return MessageBox.Show(exceptionMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
-		public static void ShowMessageBox(this PatchingProcessException outerException, ILogger logger)
+		public static DialogResult Show(this ILogger logger, PatchingProcessException outerException)
 		{
+			Exception exception = outerException.InnerException ?? outerException;
+
 			string targetFile = outerException.TargetFile;
 			string instructionName = outerException.AssociatedInstruction?.Name;
 
@@ -62,9 +65,7 @@ namespace PatchworkLauncher
 				}
 			}
 
-			Exception exception = outerException.InnerException ?? outerException;
-
-			var exceptionMessage = new CustomExceptionMessage
+			var exceptionMessage = new PatchingExceptionMessage
 			{
 				Exception = exception,
 				FailedObjects = failedObjects,
@@ -73,7 +74,9 @@ namespace PatchworkLauncher
 				Operation = outerException.Step.GetEnumValueText() ?? "Patch a file",
 			};
 
-			exception.ShowMessageBox(exceptionMessage, logger);
+			logger.Error(exceptionMessage.ToString());
+
+			return logger.Show(exceptionMessage);
 		}
 
 		#endregion

@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Patchwork.AutoPatching;
 using Patchwork.Engine.Utility;
 using Patchwork.Utility;
 using Patchwork.Utility.Binding;
@@ -19,14 +18,20 @@ using Serilog;
 
 namespace PatchworkLauncher
 {
+	/// <summary>
+	/// Requires <paramref name="SettingsManager"/>
+	/// </summary>
 	public class LaunchManager
 	{
 		#region Constructors and Destructors
 
 		static LaunchManager()
 		{
+			// cannot initialize logger without SettingsManager initializing first
+			// because the Logs directory needs to be deserialized
 			Logger = LogManager.CreateLogger("LaunchManager");
-			TxtPathReadme = Path.GetFullPath(PathSettings.Default.Readme);
+
+			TxtPathReadme = Path.GetFullPath(SettingsManager.XmlSettings.Launcher.Files.Readme);
 		}
 
 		public LaunchManager()
@@ -39,52 +44,48 @@ namespace PatchworkLauncher
 			string assemblyFolder = Path.GetDirectoryName(assemblyLocation);
 			Environment.CurrentDirectory = assemblyFolder;
 
-			// set up patch data - must run before setting up app info instance because BaseFolder needs to be set
+			// also sets up AppContextManager
 			PatchManager.Initialize();
 
-			// set up app info instance - should run before setting up main window because AppInfo.ProgramIcon could be set
-			AppContextManager.Setup();
-
 			// set up main window
-			this.PerformMainWindowSetup();
+			this.Initialize();
 		}
 
 		#endregion
 
 		#region Public Properties
 
+		public static Process GameProcess { get; set; }
+
 		public static string TxtPathReadme { get; }
 
-		public guiHome HomeWindow { get; private set; }
+		public static Image ProgramIcon { get; private set; }
 
-		public Image ProgramIcon { get; set; }
+		public MainWindow MainWindow { get; private set; }
 
 		#endregion
 
 		#region Properties
 
-		private static ILogger Logger { get; }
-
 		private static IBindable<LaunchManagerState> State { get; set; }
 
-		private Icon FormIcon { get; set; }
+		private static ILogger Logger { get; set; }
+
+		private static Icon FormIcon { get; set; }
 
 		#endregion
 
 		#region Public Methods and Operators
 
-		public static void ChangeFolder()
-		{
-			ShowGameDialog(string.Empty);
-		}
-
 		public static void Dispose()
 		{
-			((IDisposable)Logger).Dispose();
+			((IDisposable) Logger)?.Dispose();
+			FormIcon?.Dispose();
+			ProgramIcon?.Dispose();
 		}
 
 		/// <exception cref="T:System.Security.SecurityException">The caller does not have sufficient security permission to perform this function.</exception>
-		public static void ExitApplication()
+		public static void Exit()
 		{
 			if (Application.MessageLoop)
 			{
@@ -96,21 +97,6 @@ namespace PatchworkLauncher
 			}
 		}
 
-		public static string GetGameFolderWarning()
-		{
-			if (SettingsManager.BaseFolder == null)
-			{
-				return "(no game folder has been specified)";
-			}
-
-			if (!Directory.Exists(SettingsManager.BaseFolder))
-			{
-				return "(the previous game folder does not exist)";
-			}
-
-			return null;
-		}
-
 		public static void Idle()
 		{
 			if (State.Value != LaunchManagerState.Idle)
@@ -120,47 +106,46 @@ namespace PatchworkLauncher
 		}
 
 		/// <exception cref="T:System.ComponentModel.Win32Exception">There was an error in launching the process.</exception>
-		public static void LaunchProcess()
+		public static void LaunchProcess(Client clientType)
 		{
-			var process = new Process();
+			// this is disposed when launching a new process or closing the launcher
+			GameProcess = new Process();
 
-			AppInfo appContext = AppContextManager.Context;
-
-			string clientPath = PathSettings.Default.Client;
+			string clientPath = SettingsManager.XmlData.ClientPath;
 
 			if (clientPath.IsNullOrWhitespace() || !File.Exists(clientPath))
 			{
-				process.Create(appContext.Executable.FullName, Settings.Default.Arguments);
+				string executableName = AppContextManager.Context.Executable.FullName;
+
+				GameProcess.Configure(executableName, SettingsManager.XmlData.Arguments);
 			}
 			else
 			{
-				process.Create(clientPath, clientPath.EndsWithIgnoreCase("Steam.exe") ? appContext.SteamArguments : appContext.GogArguments);
+				string arguments = string.Empty;
+
+				switch (clientType)
+				{
+					case Client.Galaxy:
+						arguments = AppContextManager.Context.GogArguments;
+						break;
+					case Client.Steam:
+						arguments = AppContextManager.Context.SteamArguments;
+						break;
+				}
+
+				GameProcess.Configure(clientPath, arguments);
 			}
 
-			process.Exited += (sender, args) => State.Value = LaunchManagerState.Idle;
+			GameProcess.Exited += (sender, args) => State.Value = LaunchManagerState.Idle;
 
 			// state is not set correctly when running a client, so we handle state changes based on user intent elsewhere (e.g., click actions)
-			if (process.Start())
+			if (GameProcess.Start())
 			{
 				State.Value = LaunchManagerState.GameRunning;
 			}
 			else
 			{
 				State.Value = LaunchManagerState.Idle;
-			}
-		}
-
-		public static bool ShowGameDialog(string message)
-		{
-			using (var dialog = new guiInputGameFolder(message))
-			{
-				if (dialog.ShowDialog() == DialogResult.OK)
-				{
-					SettingsManager.BaseFolder = dialog.Folder.Value;
-					return true;
-				}
-
-				return false;
 			}
 		}
 
@@ -174,34 +159,20 @@ namespace PatchworkLauncher
 
 			string textFilePath = TxtPathReadme.Quote();
 
-			// windows can "run" text files using the default editor
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+			Process process;
+
+			switch (Environment.OSVersion.Platform)
 			{
-				Process.Start(textFilePath);
-				return;
+				// windows can "run" text files using the default editor
+				case PlatformID.Win32NT:
+					process = Process.Start(textFilePath);
+					break;
+				default:
+					process = TryOpenReadmeLinux(textFilePath);
+					break;
 			}
 
-			string defaultEditor = string.Empty;
-			var useDefaultEditor = true;
-
-			try
-			{
-				defaultEditor = Environment.GetEnvironmentVariable("$EDITOR");
-			}
-			catch (SecurityException securityException)
-			{
-				Logger.Error(securityException, "Cannot retrieve $EDITOR environment variable due to security error, trying fallback");
-				useDefaultEditor = false;
-			}
-
-			try
-			{
-				Process process = useDefaultEditor && !defaultEditor.IsNullOrWhitespace() ? Process.Start(defaultEditor, textFilePath) : TryOpenFileFallback(textFilePath);
-			}
-			catch (Exception exception)
-			{
-				Logger.Error(exception, "Cannot open readme file with either default or fallback editor");
-			}
+			process?.Dispose();
 		}
 
 		/// <exception cref="T:PatchworkLauncher.PatchingProcessException">Cannot switch files safely during the patching process</exception>
@@ -222,20 +193,39 @@ namespace PatchworkLauncher
 			}
 		}
 
+		public MainWindow StartHomeWindow()
+		{
+			this.MainWindow.ShowOrFocus();
+			return this.MainWindow;
+		}
+
+		/// <exception cref="T:System.ComponentModel.Win32Exception">There was an error in launching the process.</exception>
 		public async Task LaunchModdedAsync(LaunchType launchType = LaunchType.Patch)
 		{
+			this.MainWindow.Enabled = false;
+
 			await this.PatchAsync(launchType).ConfigureAwait(false);
-			LaunchProcess();
+			this.AskUnlockGUI(true);
+
+			LaunchProcess(this.MainWindow.ClientType);
+		}
+
+		public async Task LaunchTestRunAsync(LaunchType launchType = LaunchType.Test)
+		{
+			this.MainWindow.Enabled = false;
+
+			XmlHistory history = await this.PatchAsync(launchType).ConfigureAwait(false);
+			this.AskUnlockGUI();
+
+			PatchingHelper.RestorePatchedFiles(AppContextManager.Context, history.Files);
 		}
 
 		public async Task<XmlHistory> PatchAsync(LaunchType launchType)
 		{
 			State.Value = LaunchManagerState.IsPatching;
 
-			var history = new XmlHistory
-			{
-				Success = false
-			};
+			var history = new XmlHistory();
+			history.Success = false;
 
 			try
 			{
@@ -243,7 +233,7 @@ namespace PatchworkLauncher
 
 				using (var logForm = new LogForm(totalProgress))
 				{
-					logForm.Icon = this.HomeWindow.Icon;
+					logForm.Icon = this.MainWindow.Icon;
 
 					logForm.Show();
 
@@ -255,7 +245,7 @@ namespace PatchworkLauncher
 					}
 					catch (PatchingProcessException exception)
 					{
-						exception.ShowMessageBox(Logger);
+						Logger.Show(exception);
 					}
 
 					if (!history.Success)
@@ -268,13 +258,13 @@ namespace PatchworkLauncher
 			}
 			catch (Exception exception)
 			{
-				var exceptionMessage = new CustomExceptionMessage
+				var exceptionMessage = new PatchingExceptionMessage
 				{
-					Message = exception.Message,
-					Hint = "Patch the game"
+					Hint = "Patch the game",
+					Message = exception.Message
 				};
 
-				exception.ShowMessageBox(exceptionMessage, Logger);
+				Logger.Show(exceptionMessage);
 			}
 
 			State.Value = LaunchManagerState.Idle;
@@ -282,27 +272,9 @@ namespace PatchworkLauncher
 			return history;
 		}
 
-		public guiHome StartHomeWindow()
-		{
-			this.HomeWindow.ShowOrFocus();
-			return this.HomeWindow;
-		}
-
-		public async Task TestRunAsync(LaunchType launchType = LaunchType.Test)
-		{
-			XmlHistory history = await this.PatchAsync(launchType).ConfigureAwait(false);
-			PatchingHelper.RestorePatchedFiles(AppContextManager.Context, history.Files);
-		}
-
 		#endregion
 
 		#region Methods
-
-		private static Process TryOpenFileFallback(string editorArgument)
-		{
-			string[] editors = { "notepad", "gedit", "kate", "leafpad", "mousepad", "pluma", "gvim", "nano", "emacs", "vim" };
-			return editors.Select(editor => Process.Start(editor, editorArgument)).FirstOrDefault(result => result != null);
-		}
 
 		private static Image TryOpenIcon(FileSystemInfo iconFile)
 		{
@@ -319,7 +291,7 @@ namespace PatchworkLauncher
 			}
 			catch
 			{
-				//must not've been an image file. It's not crucial.
+				// ignored
 			}
 
 			if (image != null)
@@ -327,20 +299,109 @@ namespace PatchworkLauncher
 				return image;
 			}
 
-			Icon icon = Icon.ExtractAssociatedIcon(iconFile.FullName);
-			image = icon?.ToBitmap();
+			using (Icon icon = Icon.ExtractAssociatedIcon(iconFile.FullName))
+			{
+				if (icon != null)
+				{
+					image = icon.ToBitmap();
+				}
+			}
 
 			return image;
 		}
 
-		private void PerformMainWindowSetup()
+		private static Process TryOpenFileFallback(string editorArgument)
 		{
-			this.FormIcon = Icon.FromHandle(Resources.IconSmall.GetHicon());
+			string[] editors = { "notepad", "gedit", "kate", "leafpad", "mousepad", "pluma", "gvim", "nano", "emacs", "vim" };
+			return editors.Select(editor => Process.Start(editor, editorArgument)).FirstOrDefault(result => result != null);
+		}
 
-			this.HomeWindow = new guiHome(this);
-			this.HomeWindow.Icon = this.FormIcon;
+		private static Process TryOpenReadmeLinux(string textFilePath)
+		{
+			bool useDefaultEditor;
+			string defaultEditor = GetDefaultEditor(out useDefaultEditor);
 
-			this.ProgramIcon = TryOpenIcon(AppContextManager.Context.IconLocation) ?? this.HomeWindow.Icon?.ToBitmap();
+			Process process = null;
+
+			try
+			{
+				if (useDefaultEditor && !string.IsNullOrEmpty(defaultEditor))
+				{
+					process = Process.Start(defaultEditor, textFilePath);
+				}
+				else if (!useDefaultEditor)
+				{
+					process = TryOpenFileFallback(textFilePath);
+				}
+			}
+			catch (Exception exception)
+			{
+				Logger.Error(exception, "Cannot open readme file with either default or fallback editor");
+			}
+
+			return process;
+		}
+
+		private static string GetDefaultEditor(out bool useDefaultEditor)
+		{
+			string defaultEditor = string.Empty;
+
+			try
+			{
+				defaultEditor = Environment.GetEnvironmentVariable("$EDITOR");
+				useDefaultEditor = true;
+			}
+			catch (SecurityException securityException)
+			{
+				Logger.Error(securityException, "Cannot retrieve $EDITOR environment variable due to security error, trying fallback");
+				useDefaultEditor = false;
+			}
+
+			return defaultEditor;
+		}
+
+		private void AskUnlockGUI(bool runningGame = false)
+		{
+			string message;
+
+			if (runningGame)
+			{
+				if (GameProcess != null)
+				{
+					string fileName = Path.GetFileName(GameProcess.StartInfo.FileName);
+					message = string.Format(Resources.UnlockRunningFormat, Environment.NewLine, Environment.NewLine, fileName, GameProcess.Id);
+				}
+				else
+				{
+					message = Resources.UnlockRunningText;
+				}
+			}
+			else
+			{
+				message = Resources.UnlockRunningText;
+			}
+
+			using (var messageBox = new UnlockMessageBox(message))
+			{
+				DialogResult result = messageBox.ShowDialog(this.MainWindow);
+
+				if (result == DialogResult.OK)
+				{
+					this.MainWindow.Enabled = true;
+					this.MainWindow.ShowOrFocus();
+				}
+			}
+		}
+
+		private void Initialize()
+		{
+			IntPtr iconHandle = Resources.IconSmall.GetHicon();
+			FormIcon = Icon.FromHandle(iconHandle);
+
+			this.MainWindow = new MainWindow(this);
+			this.MainWindow.Icon = FormIcon;
+
+			ProgramIcon = TryOpenIcon(AppContextManager.Context.IconLocation) ?? this.MainWindow.Icon?.ToBitmap();
 		}
 
 		#endregion

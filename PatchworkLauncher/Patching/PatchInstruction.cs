@@ -6,25 +6,57 @@ namespace PatchworkLauncher
 {
 	public class PatchInstruction : IInstruction, IDisposable
 	{
-		public PatchingManifest Patch { get; set; }
+		#region Public Properties
 
 		public AppInfo AppInfo { get; set; }
 
-		public string PatchLocation { get; set; }
-
 		public bool IsEnabled { get; set; }
 
-		public string Requirements => Patch.PatchInfo.Requirements;
+		public PatchingManifest Patch { get; set; }
 
-		public string Version => Patch.PatchInfo.PatchVersion;
+		public string Location { get; set; }
 
-		public string Name => Patch.PatchInfo.PatchName;
+		public string Name
+		{
+			get
+			{
+				return this.Patch.PatchInfo.PatchName;
+			}
+		}
 
-		public string Target => Patch.PatchInfo.GetTargetFile(AppInfo).Name;
+		public string Requirements
+		{
+			get
+			{
+				return this.Patch.PatchInfo.Requirements;
+			}
+		}
+
+		public string Target
+		{
+			get
+			{
+				return this.Patch.PatchInfo.GetTargetFile(this.AppInfo).Name;
+			}
+		}
+
+		public string Version
+		{
+			get
+			{
+				return this.Patch.PatchInfo.PatchVersion;
+			}
+		}
+
+		#endregion
+
+		#region Public Methods and Operators
 
 		public void Dispose()
 		{
-			Patch.Dispose();
+			this.Patch?.Dispose();
 		}
+
+		#endregion
 	}
 }

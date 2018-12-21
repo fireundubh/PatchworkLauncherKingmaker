@@ -8,6 +8,18 @@ namespace PatchworkLauncher.Extensions
 {
 	public static class GuiExtensions
 	{
+		#region Public Methods and Operators
+
+		public static IList<Control> CastList(this Control.ControlCollection collection)
+		{
+			return collection.CastList<Control>();
+		}
+
+		public static IList<Control> CastList(this Form.ControlCollection collection)
+		{
+			return collection.CastList<Control>();
+		}
+
 		public static void ShowOrFocus(this Form form)
 		{
 			if (form.Visible)
@@ -20,35 +32,36 @@ namespace PatchworkLauncher.Extensions
 			}
 		}
 
-		public static IList<Control> CastList(this Control.ControlCollection collection)
-		{
-			return collection.CastList<Control>();
-		}
-
-		public static IList<Control> CastList(this Form.ControlCollection collection)
-		{
-			return collection.CastList<Control>();
-		}
+		#endregion
 	}
 
 	public static class GuiBindings
 	{
-		/// <exception cref="T:System.Exception">The <paramref name="act"/> delegate callback throws an exception.</exception>
+		#region Public Methods and Operators
+
 		public static IBindable<TValue> Bind<TControl, TValue>(this TControl control, Expression<Func<TControl, TValue>> memberAccess, string refreshEvent = null) where TControl : Control
 		{
-			Action<Action> dispatcher = act =>
-			                            {
-				                            if (control?.InvokeRequired == true)
-				                            {
-					                            control.Invoke(act);
-				                            }
-				                            else
-				                            {
-					                            act();
-				                            }
-			                            };
 			EventRaised notification = refreshEvent == null ? null : new EventRaised(refreshEvent);
-			return control.Bind(memberAccess, notification).WithDispatcher(dispatcher);
+
+			return control.Bind(memberAccess, notification).WithDispatcher(control.Dispatch);
 		}
+
+		#endregion
+
+		#region Methods
+
+		private static void Dispatch<TControl>(this TControl control, Action action) where TControl : Control
+		{
+			if (control?.InvokeRequired == true)
+			{
+				control.Invoke(action);
+			}
+			else
+			{
+				action();
+			}
+		}
+
+		#endregion
 	}
 }

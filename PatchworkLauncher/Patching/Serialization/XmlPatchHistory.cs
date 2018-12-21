@@ -4,18 +4,19 @@ namespace PatchworkLauncher
 	{
 		public XmlPatchHistory()
 		{
+			// ignored
 		}
 
-		public XmlPatchHistory(string patchLocation)
+		public XmlPatchHistory(string location)
 		{
-			PatchLocation = patchLocation;
+			this.Location = location;
 		}
 
-		public string PatchLocation { get; set; } = "";
+		public string Location { get; set; } = "";
 
-		public static XmlPatchHistory FromInstruction(PatchInstruction instr)
+		public static XmlPatchHistory FromInstruction(PatchInstruction instruction)
 		{
-			return new XmlPatchHistory(instr.PatchLocation);
+			return new XmlPatchHistory(instruction.Location);
 		}
 	}
 }

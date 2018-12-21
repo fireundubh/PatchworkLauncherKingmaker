@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
-using PatchworkLauncher.Properties;
 using Serilog;
 using Serilog.Events;
 
 namespace PatchworkLauncher
 {
+	/// <summary>
+	/// Requires <paramref name="SettingsManager"/>
+	/// </summary>
 	public static class PreferencesManager
 	{
 		#region Constructors and Destructors
@@ -14,7 +16,7 @@ namespace PatchworkLauncher
 		static PreferencesManager()
 		{
 			SerializerInstance = new XmlSerializer(typeof(XmlPreferences));
-			FullPath = Path.GetFullPath(PathSettings.Default.Preferences);
+			FullPath = Path.GetFullPath(SettingsManager.XmlSettings.Launcher.Files.Preferences);
 
 			Logger = LogManager.CreateLogger("PreferencesManager");
 		}
@@ -51,7 +53,7 @@ namespace PatchworkLauncher
 
 		public static void Dispose()
 		{
-			((IDisposable)Logger).Dispose();
+			((IDisposable) Logger)?.Dispose();
 		}
 
 		public static void Initialize()

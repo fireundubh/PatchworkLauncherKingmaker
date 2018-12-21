@@ -4,6 +4,6 @@
 	{
 		bool IsEnabled { get; set; }
 
-		string PatchLocation { get; set; }
+		string Location { get; set; }
 	}
 }

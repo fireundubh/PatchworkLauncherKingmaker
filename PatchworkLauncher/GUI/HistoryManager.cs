@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
-using PatchworkLauncher.Properties;
 using Serilog;
 
 namespace PatchworkLauncher
 {
+	/// <summary>
+	/// Requires <paramref name="SettingsManager"/>
+	/// </summary>
 	public static class HistoryManager
 	{
 		#region Constructors and Destructors
@@ -13,7 +15,7 @@ namespace PatchworkLauncher
 		static HistoryManager()
 		{
 			SerializerInstance = new XmlSerializer(typeof(XmlHistory));
-			FullPath = Path.GetFullPath(PathSettings.Default.History);
+			FullPath = Path.GetFullPath(SettingsManager.XmlSettings.Launcher.Files.History);
 
 			Logger = LogManager.CreateLogger("HistoryManager");
 		}
@@ -63,7 +65,12 @@ namespace PatchworkLauncher
 
 		public static void Dispose()
 		{
-			((IDisposable)Logger).Dispose();
+			((IDisposable) Logger)?.Dispose();
+		}
+
+		public static void Initialize()
+		{
+			Delete();
 		}
 
 		public static void RestorePatchedFiles()

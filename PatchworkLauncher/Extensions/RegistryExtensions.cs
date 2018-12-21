@@ -4,6 +4,8 @@ namespace PatchworkLauncher.Extensions
 {
 	public static class RegistryExtensions
 	{
+		#region Public Methods and Operators
+
 		/// <exception cref="T:System.IO.IOException">The <see cref="T:Microsoft.Win32.RegistryKey" /> that contains the specified value has been marked for deletion.</exception>
 		/// <exception cref="T:System.Security.SecurityException">The user does not have the permissions required to read from the registry key.</exception>
 		/// <exception cref="T:System.UnauthorizedAccessException">The user does not have the necessary registry rights.</exception>
@@ -28,5 +30,7 @@ namespace PatchworkLauncher.Extensions
 			value = string.Empty;
 			return false;
 		}
+
+		#endregion
 	}
 }

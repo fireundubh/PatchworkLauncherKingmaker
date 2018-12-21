@@ -1,8 +1,20 @@
-﻿namespace PatchworkLauncher.Extensions
+﻿using Patchwork.AutoPatching;
+using Patchwork.Engine;
+
+namespace PatchworkLauncher.Extensions
 {
 	public static class PatchExtensions
 	{
 		#region Public Methods and Operators
+
+		public static PatchInstruction Configure(this PatchInstruction patchInstruction, AppInfo context, PatchingManifest manifest, string location, bool enabled = true)
+		{
+			patchInstruction.IsEnabled = enabled;
+			patchInstruction.Patch = manifest;
+			patchInstruction.Location = location;
+			patchInstruction.AppInfo = context;
+			return patchInstruction;
+		}
 
 		/// <exception cref="T:Patchwork.Engine.PatchDeclerationException">The patch did not have a PatchInfo class.</exception>
 		public static PatchInstruction ToPatchInstruction(this XmlInstruction instruction)
@@ -11,8 +23,8 @@
 			{
 				AppInfo = AppContextManager.Context,
 				IsEnabled = true,
-				Patch = PatchManager.TryGetManifest(instruction.PatchLocation),
-				PatchLocation = instruction.PatchLocation
+				Patch = PatchManager.TryGetManifest(instruction.Location),
+				Location = instruction.Location
 			};
 		}
 
@@ -22,7 +34,7 @@
 			{
 				IsEnabled = instruction.IsEnabled,
 				Name = instruction.Patch.PatchInfo.PatchName,
-				PatchLocation = instruction.PatchLocation
+				Location = instruction.Location
 			};
 		}
 

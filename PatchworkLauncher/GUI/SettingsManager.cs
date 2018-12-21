@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Win32;
 using NCode.ReparsePoints;
 using Patchwork.Engine.Utility;
 using PatchworkLauncher.Extensions;
-using PatchworkLauncher.Properties;
 using Serilog;
 
 namespace PatchworkLauncher
@@ -18,7 +18,7 @@ namespace PatchworkLauncher
 		static SettingsManager()
 		{
 			SerializerInstance = new XmlSerializer(typeof(XmlSettings));
-			FullPath = Path.GetFullPath(PathSettings.Default.Settings);
+			FullPath = Path.GetFullPath(XmlSettings.Launcher.Files.Settings);
 
 			Logger = LogManager.CreateLogger("SettingsManager");
 		}
@@ -27,39 +27,9 @@ namespace PatchworkLauncher
 
 		#region Public Properties
 
-		public static string BaseFolder
-		{
-			get
-			{
-				XmlSettings settings = Settings;
-				return settings.BaseFolder;
-			}
-			set
-			{
-				XmlSettings settings = Settings;
-				settings.BaseFolder = value;
-				SerializerInstance.Serialize(settings, FullPath);
-			}
-		}
-
 		public static string FullPath { get; }
 
-		public static List<XmlInstruction> Instructions
-		{
-			get
-			{
-				XmlSettings settings = Settings;
-				return settings.Instructions;
-			}
-			set
-			{
-				XmlSettings settings = Settings;
-				settings.Instructions = value;
-				SerializerInstance.Serialize(settings, FullPath);
-			}
-		}
-
-		public static XmlSettings Settings
+		public static XmlSettings XmlSettings
 		{
 			get
 			{
@@ -83,38 +53,116 @@ namespace PatchworkLauncher
 
 		#region Public Methods and Operators
 
+		public static string GetGamePathFromRegistry()
+		{
+			RegistryView[] registryViews =
+			{
+				RegistryView.Registry32,
+				RegistryView.Registry64
+			};
+
+			string value = string.Empty;
+
+			if (registryViews.Any(registryView => registryView.RegQueryStringValue(XmlSettings.Launcher.Registry.Steam, "InstallLocation", out value)) && !string.IsNullOrEmpty(value))
+			{
+				return value;
+			}
+
+			if (registryViews.Any(registryView => registryView.RegQueryStringValue(XmlSettings.Launcher.Registry.Galaxy, "PATH", out value)) && !string.IsNullOrEmpty(value))
+			{
+				return value;
+			}
+
+			return value;
+		}
+
 		public static void Dispose()
 		{
-			((IDisposable)Logger).Dispose();
+			((IDisposable) Logger)?.Dispose();
 		}
 
 		public static void Initialize()
 		{
-			CreateSettings();
+			InvalidateXmlData();
 		}
 
-		public static void InvalidateBaseFolder()
+		public static void InvalidateXmlData()
 		{
-			if (Directory.Exists(BaseFolder))
+			InvalidateClientPath();
+			InvalidateGamePath();
+			InvalidateInstructions();
+		}
+
+		#endregion
+
+		#region Methods
+
+		private static bool IsLocalMod(string patchLocation)
+		{
+			return patchLocation.StartsWithIgnoreCase(XmlData.ModsPath);
+		}
+
+		private static bool ValidateXmlPath(string xmlPath, bool isFile = false)
+		{
+			if (isFile)
 			{
-				return;
+				if (File.Exists(xmlPath))
+				{
+					return true;
+				}
+			}
+			else
+			{
+				if (Directory.Exists(xmlPath))
+				{
+					return true;
+				}
 			}
 
 			// TODO: might fail on linux
 			IReparsePointProvider provider = ReparsePointFactory.Provider;
-			LinkType linkType = provider.GetLinkType(BaseFolder);
+			LinkType linkType = provider.GetLinkType(xmlPath);
 
-			if (linkType == LinkType.Junction || linkType == LinkType.Symbolic)
+			switch (linkType)
+			{
+				case LinkType.Junction:
+				case LinkType.Symbolic:
+					return true;
+				default:
+					return false;
+			}
+		}
+
+		private static string GetLocalPath(string patchLocation)
+		{
+			return patchLocation == null ? string.Empty : Path.Combine(XmlData.ModsPath, Path.GetFileName(patchLocation));
+		}
+
+		private static void InvalidateClientPath()
+		{
+			if (ValidateXmlPath(XmlData.ClientPath, true))
 			{
 				return;
 			}
 
-			BaseFolder = string.Empty;
+			Logger.Information("InvalidateClientPath. Set ClientPath to empty.");
+			XmlData.ClientPath = string.Empty;
 		}
 
-		public static void InvalidateInstructions()
+		private static void InvalidateGamePath()
 		{
-			XmlSettings settings = Settings;
+			if (ValidateXmlPath(XmlData.GamePath, false))
+			{
+				return;
+			}
+
+			Logger.Information("InvalidateGamePath. Set GamePath to empty.");
+			XmlData.GamePath = string.Empty;
+		}
+
+		private static void InvalidateInstructions()
+		{
+			XmlSettings settings = XmlSettings;
 
 			List<XmlInstruction> instructions = settings?.Instructions;
 
@@ -123,70 +171,101 @@ namespace PatchworkLauncher
 				return;
 			}
 
-			instructions.RemoveWhere(instruction => instruction != null && !File.Exists(instruction.PatchLocation));
+			instructions.RemoveWhere(x => x != null && (!File.Exists(GetLocalPath(x.Location)) || !IsLocalMod(x.Location)));
 			SerializerInstance.Serialize(settings, FullPath);
 		}
 
-		public static void SetGamePathFallback()
-		{
-			string message = LaunchManager.GetGameFolderWarning();
-
-			if (message == null)
-			{
-				return;
-			}
-
-			if (!LaunchManager.ShowGameDialog(message))
-			{
-				LaunchManager.ExitApplication();
-			}
-		}
-
-		public static string SetGamePathFromRegistry()
-		{
-			string value = string.Empty;
-
-			if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-			{
-				return value;
-			}
-
-			if (RegistryView.Registry32.RegQueryStringValue(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 640820", "InstallLocation", out value))
-			{
-				BaseFolder = value;
-			}
-
-			if (RegistryView.Registry32.RegQueryStringValue(@"SOFTWARE\Wow6432Node\GOG.com\Games\1982293831", "PATH", out value))
-			{
-				BaseFolder = value;
-			}
-
-			if (RegistryView.Registry64.RegQueryStringValue(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 640820", "InstallLocation", out value))
-			{
-				BaseFolder = value;
-			}
-
-			if (RegistryView.Registry64.RegQueryStringValue(@"SOFTWARE\Wow6432Node\GOG.com\Games\1982293831", "PATH", out value))
-			{
-				BaseFolder = value;
-			}
-
-			return value;
-		}
-
 		#endregion
 
-		#region Methods
-
-		private static void CreateSettings()
+		public static class XmlData
 		{
-			if (!File.Exists(FullPath))
-			{
-				Instructions = new List<XmlInstruction>();
-				BaseFolder = string.Empty;
-			}
-		}
+			#region Public Properties
 
-		#endregion
+			public static List<XmlInstruction> Instructions
+			{
+				get
+				{
+					return XmlSettings.Instructions;
+				}
+				set
+				{
+					XmlSettings settings = XmlSettings;
+					settings.Instructions = value;
+					SerializerInstance.Serialize(settings, FullPath);
+				}
+			}
+
+			public static string Arguments
+			{
+				get
+				{
+					return XmlSettings.Options.Arguments;
+				}
+				set
+				{
+					XmlSettings settings = XmlSettings;
+					settings.Options.Arguments = value;
+					SerializerInstance.Serialize(settings, FullPath);
+				}
+			}
+
+			public static string ClientPath
+			{
+				get
+				{
+					return XmlSettings.Launcher.Files.Client;
+				}
+				set
+				{
+					XmlSettings settings = XmlSettings;
+					settings.Launcher.Files.Client = value;
+					SerializerInstance.Serialize(settings, FullPath);
+				}
+			}
+
+			public static string GamePath
+			{
+				get
+				{
+					return XmlSettings.Launcher.Folders.Game;
+				}
+				set
+				{
+					XmlSettings settings = XmlSettings;
+					settings.Launcher.Folders.Game = value;
+					SerializerInstance.Serialize(settings, FullPath);
+				}
+			}
+
+			public static string LogsPath
+			{
+				get
+				{
+					return XmlSettings.Launcher.Folders.Logs;
+				}
+				set
+				{
+					XmlSettings settings = XmlSettings;
+					settings.Launcher.Folders.Logs = value;
+					SerializerInstance.Serialize(settings, FullPath);
+				}
+			}
+
+			public static string ModsPath
+			{
+				get
+				{
+					return XmlSettings.Launcher.Folders.Mods;
+				}
+				set
+				{
+					XmlSettings settings = XmlSettings;
+					settings.Launcher.Folders.Mods = value;
+					SerializerInstance.Serialize(settings, FullPath);
+				}
+			}
+
+			#endregion
+		}
 	}
 }

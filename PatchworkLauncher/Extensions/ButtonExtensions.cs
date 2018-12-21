@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace PatchworkLauncher
+namespace PatchworkLauncher.Extensions
 {
 	public static class ButtonExtensions
 	{
+		#region Public Methods and Operators
+
+		[Obsolete]
 		public static void ClearClickEvents(this Button button, params EventHandler[] eventHandlers)
 		{
 			foreach (EventHandler eventHandler in eventHandlers)
@@ -14,6 +17,7 @@ namespace PatchworkLauncher
 			}
 		}
 
+		[Obsolete]
 		public static void ClearClickEvents(this Button button, IEnumerable<EventHandler> eventHandlers)
 		{
 			foreach (EventHandler eventHandler in eventHandlers)
@@ -21,5 +25,7 @@ namespace PatchworkLauncher
 				button.Click -= eventHandler;
 			}
 		}
+
+		#endregion
 	}
 }
