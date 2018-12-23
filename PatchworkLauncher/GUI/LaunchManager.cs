@@ -36,6 +36,8 @@ namespace PatchworkLauncher
 
 		public LaunchManager()
 		{
+			this.Initialize();
+
 			State = Bindable.Variable(LaunchManagerState.Idle);
 
 			// TODO: is this needed on windows?
@@ -47,21 +49,21 @@ namespace PatchworkLauncher
 			// also sets up AppContextManager
 			PatchManager.Initialize();
 
-			// set up main window
-			this.Initialize();
+			// TODO: could just Thread.Sleep instead of calling it again, but LiteDB migration is on roadmap, so whatever
+			AppContextManager.Setup();
 		}
 
 		#endregion
 
 		#region Public Properties
 
+		public static Image ProgramIcon { get; private set; }
+
 		public static Process GameProcess { get; set; }
 
 		public static string TxtPathReadme { get; }
 
-		public static Image ProgramIcon { get; private set; }
-
-		public MainWindow MainWindow { get; private set; }
+		public static MainWindow MainWindow { get; private set; }
 
 		#endregion
 
@@ -69,9 +71,9 @@ namespace PatchworkLauncher
 
 		private static IBindable<LaunchManagerState> State { get; set; }
 
-		private static ILogger Logger { get; set; }
-
 		private static Icon FormIcon { get; set; }
+
+		private static ILogger Logger { get; set; }
 
 		#endregion
 
@@ -115,7 +117,7 @@ namespace PatchworkLauncher
 
 			if (clientPath.IsNullOrWhitespace() || !File.Exists(clientPath))
 			{
-				string executableName = AppContextManager.Context.Executable.FullName;
+				string executableName = AppContextManager.Context.Value.Executable.FullName;
 
 				GameProcess.Configure(executableName, SettingsManager.XmlData.Arguments);
 			}
@@ -126,10 +128,10 @@ namespace PatchworkLauncher
 				switch (clientType)
 				{
 					case Client.Galaxy:
-						arguments = AppContextManager.Context.GogArguments;
+						arguments = AppContextManager.Context.Value.GogArguments;
 						break;
 					case Client.Steam:
-						arguments = AppContextManager.Context.SteamArguments;
+						arguments = AppContextManager.Context.Value.SteamArguments;
 						break;
 				}
 
@@ -195,29 +197,29 @@ namespace PatchworkLauncher
 
 		public MainWindow StartHomeWindow()
 		{
-			this.MainWindow.ShowOrFocus();
-			return this.MainWindow;
+			MainWindow.ShowOrFocus();
+			return MainWindow;
 		}
 
 		/// <exception cref="T:System.ComponentModel.Win32Exception">There was an error in launching the process.</exception>
 		public async Task LaunchModdedAsync(LaunchType launchType = LaunchType.Patch)
 		{
-			this.MainWindow.Enabled = false;
+			MainWindow.Enabled = false;
 
 			await this.PatchAsync(launchType).ConfigureAwait(false);
 			this.AskUnlockGUI(true);
 
-			LaunchProcess(this.MainWindow.ClientType);
+			LaunchProcess(MainWindow.ClientType);
 		}
 
 		public async Task LaunchTestRunAsync(LaunchType launchType = LaunchType.Test)
 		{
-			this.MainWindow.Enabled = false;
+			MainWindow.Enabled = false;
 
 			XmlHistory history = await this.PatchAsync(launchType).ConfigureAwait(false);
 			this.AskUnlockGUI();
 
-			PatchingHelper.RestorePatchedFiles(AppContextManager.Context, history.Files);
+			PatchingHelper.RestorePatchedFiles(AppContextManager.Context.Value, history.Files);
 		}
 
 		public async Task<XmlHistory> PatchAsync(LaunchType launchType)
@@ -233,7 +235,7 @@ namespace PatchworkLauncher
 
 				using (var logForm = new LogForm(totalProgress))
 				{
-					logForm.Icon = this.MainWindow.Icon;
+					logForm.Icon = MainWindow.Icon;
 
 					logForm.Show();
 
@@ -250,7 +252,7 @@ namespace PatchworkLauncher
 
 					if (!history.Success)
 					{
-						PatchingHelper.RestorePatchedFiles(AppContextManager.Context, history.Files);
+						PatchingHelper.RestorePatchedFiles(AppContextManager.Context.Value, history.Files);
 					}
 
 					logForm.Close();
@@ -270,6 +272,58 @@ namespace PatchworkLauncher
 			State.Value = LaunchManagerState.Idle;
 
 			return history;
+		}
+
+		public static void SetClientIcon()
+		{
+			if (AppContextManager.Context.Value == null)
+			{
+				Logger.Error("Context.Value was null. Cannot set client icon.");
+				return;
+			}
+
+			if (string.IsNullOrEmpty(SettingsManager.XmlData.GamePath))
+			{
+				Logger.Error("XmlData.GamePath was null or empty. Cannot set client icon.");
+				return;
+			}
+
+			string clientPath = SettingsManager.XmlData.ClientPath;
+
+			string iconPath = string.IsNullOrEmpty(clientPath) ? AppContextManager.Context.Value.Executable.FullName : clientPath;
+
+			if (string.IsNullOrEmpty(iconPath))
+			{
+				return;
+			}
+
+			// we don't really care about the icon, so let's ignore any exceptions
+			Image iconImage;
+
+			try
+			{
+				iconImage = TryOpenIcon(new FileInfo(iconPath));
+			}
+			catch (Exception exception)
+			{
+				Logger.Error(exception, "Cannot load client icon.");
+				return;
+			}
+
+			// MainWindow can be null if LaunchManager.Initialize() is not called first in constructor
+			// because the MainWindow property needs to be initialized before SetClientIcon is called
+			using (iconImage)
+			{
+				try
+				{
+					MainWindow.ClientIcon.Image = new Bitmap(iconImage, 19, 19);
+					MainWindow.ClientIcon.Refresh();
+				}
+				catch (Exception exception)
+				{
+					Logger.Error(exception, "An exception occurred while setting the client icon image.");
+				}
+			}
 		}
 
 		#endregion
@@ -383,12 +437,12 @@ namespace PatchworkLauncher
 
 			using (var messageBox = new UnlockMessageBox(message))
 			{
-				DialogResult result = messageBox.ShowDialog(this.MainWindow);
+				DialogResult result = messageBox.ShowDialog(MainWindow);
 
 				if (result == DialogResult.OK)
 				{
-					this.MainWindow.Enabled = true;
-					this.MainWindow.ShowOrFocus();
+					MainWindow.Enabled = true;
+					MainWindow.ShowOrFocus();
 				}
 			}
 		}
@@ -398,10 +452,10 @@ namespace PatchworkLauncher
 			IntPtr iconHandle = Resources.IconSmall.GetHicon();
 			FormIcon = Icon.FromHandle(iconHandle);
 
-			this.MainWindow = new MainWindow(this);
-			this.MainWindow.Icon = FormIcon;
+			MainWindow = new MainWindow(this);
+			MainWindow.Icon = FormIcon;
 
-			ProgramIcon = TryOpenIcon(AppContextManager.Context.IconLocation) ?? this.MainWindow.Icon?.ToBitmap();
+			ProgramIcon = TryOpenIcon(AppContextManager.Context.Value.IconLocation) ?? MainWindow.Icon?.ToBitmap();
 		}
 
 		#endregion

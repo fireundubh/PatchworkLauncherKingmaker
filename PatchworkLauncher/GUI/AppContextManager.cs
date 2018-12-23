@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using Patchwork.AutoPatching;
 using Patchwork.Engine.Utility;
+using Patchwork.Utility.Binding;
 using PatchworkLauncher.FolderBrowserDialogSettings;
 using Serilog;
 
@@ -16,19 +18,41 @@ namespace PatchworkLauncher
 		{
 			FullPath = Path.GetFullPath(SettingsManager.XmlSettings.Launcher.Files.AppInfo);
 			Logger = LogManager.CreateLogger("AppContextManager");
+
+			Context = Bindable.Variable(DefaultAppInfo);
+
+			Context.HasChanged += delegate(IBindable<AppInfo> bindable)
+			                      {
+				                      if (bindable.Value != null && bindable.Value != DefaultAppInfo)
+				                      {
+										  Logger.Information("Context changed. Trying to set client icon.");
+					                      LaunchManager.SetClientIcon();
+				                      }
+			                      };
 		}
 
 		#endregion
 
 		#region Public Properties
 
-		public static AppInfo Context { get; set; }
+		public static IBindable<AppInfo> Context { get; set; }
 
 		public static string FullPath { get; }
 
 		#endregion
 
 		#region Properties
+
+		private static AppInfo DefaultAppInfo
+		{
+			get
+			{
+				var defaultAppInfo = new AppInfo();
+				defaultAppInfo.AppName = "No AppInfo.dll";
+				defaultAppInfo.AppVersion = "version??";
+				return defaultAppInfo;
+			}
+		}
 
 		private static ILogger Logger { get; }
 
@@ -60,7 +84,9 @@ namespace PatchworkLauncher
 
 		public static void Setup()
 		{
-			AppInfoFactory appInfoFactory = GetFactory();
+			Logger.Debug("Trying to set up AppInfoFactory given path: {0}", FullPath);
+
+			AppInfoFactory appInfoFactory = GetFactory(FullPath);
 			CreateInstance(appInfoFactory);
 		}
 
@@ -68,9 +94,9 @@ namespace PatchworkLauncher
 
 		#region Methods
 
-		private static AppInfoFactory GetFactory()
+		private static AppInfoFactory GetFactory(string filePath)
 		{
-			return File.Exists(FullPath) ? PatchingHelper.LoadAppInfoFactory(FullPath) : null;
+			return File.Exists(filePath) ? PatchingHelper.LoadAppInfoFactory(filePath) : null;
 		}
 
 		private static void CreateInstance(AppInfoFactory appInfoFactory)
@@ -78,15 +104,16 @@ namespace PatchworkLauncher
 			if (appInfoFactory != null && !SettingsManager.XmlData.GamePath.IsNullOrWhitespace())
 			{
 				var directoryInfo = new DirectoryInfo(SettingsManager.XmlData.GamePath);
-				Context = appInfoFactory.CreateInfo(directoryInfo);
+				Context.Value = appInfoFactory.CreateInfo(directoryInfo);
+
+				Logger.Debug("Found AppInfo.dll. Using AppInfo instance: {0}", Context.Value.AppName);
+
 				return;
 			}
 
 			Logger.Error("Cannot find AppInfo.dll. Using default AppInfo instance.");
 
-			Context = new AppInfo();
-			Context.AppName = "No AppInfo.dll";
-			Context.AppVersion = "version??";
+			Context.Value = DefaultAppInfo;
 		}
 
 		#endregion

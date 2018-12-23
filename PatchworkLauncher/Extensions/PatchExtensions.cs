@@ -21,7 +21,7 @@ namespace PatchworkLauncher.Extensions
 		{
 			return new PatchInstruction
 			{
-				AppInfo = AppContextManager.Context,
+				AppInfo = AppContextManager.Context.Value,
 				IsEnabled = true,
 				Patch = PatchManager.TryGetManifest(instruction.Location),
 				Location = instruction.Location

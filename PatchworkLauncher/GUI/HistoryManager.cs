@@ -68,16 +68,13 @@ namespace PatchworkLauncher
 			((IDisposable) Logger)?.Dispose();
 		}
 
-		public static void Initialize()
-		{
-			Delete();
-		}
-
 		public static void RestorePatchedFiles()
 		{
 			if (History != null)
 			{
-				PatchingHelper.RestorePatchedFiles(AppContextManager.Context, History.Files);
+				Logger.Debug("Trying to restore patched files because we have History...");
+
+				PatchingHelper.RestorePatchedFiles(AppContextManager.Context.Value, History.Files);
 			}
 		}
 

@@ -75,6 +75,8 @@ namespace PatchworkLauncher
 				preferences.OpenLogAfterPatch = false;
 				preferences.MinimumEventLevel = LogEventLevel.Information;
 				Preferences = preferences;
+
+				Logger.Debug("Created preferences.pw.xml because the file did not exist.");
 			}
 		}
 

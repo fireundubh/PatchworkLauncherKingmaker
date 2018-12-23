@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Patchwork;
@@ -24,6 +23,18 @@ namespace PatchworkLauncher
 
 		#region Public Properties
 
+		public PictureBox ClientIcon
+		{
+			get
+			{
+				return this.pbClientIcon;
+			}
+			set
+			{
+				this.pbClientIcon = value;
+			}
+		}
+
 		public Client ClientType { get; set; } = Client.None;
 
 		public LaunchManager Manager { get; }
@@ -31,15 +42,6 @@ namespace PatchworkLauncher
 		#endregion
 
 		#region Methods
-
-		private static Icon ExtractIcon()
-		{
-			string clientPath = SettingsManager.XmlData.ClientPath;
-
-			string iconPath = string.IsNullOrEmpty(clientPath) ? AppContextManager.Context.Executable.FullName : clientPath;
-
-			return Icon.ExtractAssociatedIcon(iconPath);
-		}
 
 		private static void ResetData()
 		{
@@ -79,11 +81,11 @@ namespace PatchworkLauncher
 
 		private void btnClientPath_Click(object sender, EventArgs e)
 		{
-			DialogResult result = AppContextManager.AskPath(new ClientFolderBrowserDialogSettings { Description = "Select folder containing GalaxyClient.exe or Steam.exe" });
+			DialogResult result = AppContextManager.AskPath(new ClientFolderBrowserDialogSettings { Description = "Select folder containing GalaxyClient.exe or Steam.exe." });
 
 			if (result == DialogResult.OK)
 			{
-				this.SetClientIcon();
+				LaunchManager.SetClientIcon();
 				this.ShowOrFocus();
 			}
 		}
@@ -97,11 +99,12 @@ namespace PatchworkLauncher
 		{
 			DialogResult result = AppContextManager.AskPath(new GameFolderBrowserDialogSettings
 			{
-				Description = string.Format("Select folder containing {0}", AppContextManager.Context.Executable.Name)
+				Description = string.Format("Select folder containing {0}", AppContextManager.Context.Value.Executable.Name)
 			});
 
 			if (result == DialogResult.OK)
 			{
+				LaunchManager.SetClientIcon();
 				this.ShowOrFocus();
 			}
 		}
@@ -152,14 +155,12 @@ namespace PatchworkLauncher
 			this.guiGameIcon.Image = LaunchManager.ProgramIcon;
 			this.guiGameIcon.Refresh();
 			this.guiPwVersion.Text = PatchworkInfo.Version + " (#playwithfire)";
-			this.guiGameName.Text = AppContextManager.Context.AppName;
-			this.guiGameVersion.Text = "AppInfo v" + AppContextManager.Context.AppVersion;
+			this.guiGameName.Text = AppContextManager.Context.Value.AppName;
+			this.guiGameVersion.Text = "AppInfo v" + AppContextManager.Context.Value.AppVersion;
 
 			this.tbArguments.Text = SettingsManager.XmlData.Arguments;
 
 			this.ClientType = string.IsNullOrEmpty(SettingsManager.XmlData.ClientPath) ? Client.None : SettingsManager.XmlData.ClientPath.EndsWithIgnoreCase("Steam.exe") ? Client.Steam : Client.Galaxy;
-
-			this.SetClientIcon();
 
 			// async click handlers
 			this.btnLaunchNoMods.Click += (o, args) =>
@@ -193,20 +194,6 @@ namespace PatchworkLauncher
 		{
 			Process process = Process.Start(PatchworkInfo.PatchworkSite);
 			process?.Dispose();
-		}
-
-		private void SetClientIcon()
-		{
-			Icon icon = ExtractIcon();
-
-			if (icon != null)
-			{
-				Bitmap bitmap = Bitmap.FromHicon(icon.Handle);
-
-				this.pbClientIcon.Image = new Bitmap(bitmap, new Size(19, 19));
-			}
-
-			this.pbClientIcon.Refresh();
 		}
 
 		private void tbArguments_TextChanged(object sender, EventArgs e)

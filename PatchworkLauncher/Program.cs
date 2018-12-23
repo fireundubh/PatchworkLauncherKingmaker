@@ -5,6 +5,8 @@ namespace PatchworkLauncher
 {
 	internal static class Program
 	{
+		#region Methods
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -14,8 +16,8 @@ namespace PatchworkLauncher
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			PreferencesManager.Initialize();
 			SettingsManager.Initialize();
+			PreferencesManager.Initialize();
 			HistoryManager.Delete();
 
 			var manager = new LaunchManager();
@@ -23,5 +25,7 @@ namespace PatchworkLauncher
 
 			Application.Run();
 		}
+
+		#endregion
 	}
 }

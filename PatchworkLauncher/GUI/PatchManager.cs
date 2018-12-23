@@ -103,7 +103,7 @@ namespace PatchworkLauncher
 		{
 			//TODO: Use a different progress tracking system and make the entire patching operation more recoverable and fault-tolerant.
 			//TODO: Refactor this method.
-			AppInfo appInfo = AppContextManager.Context;
+			AppInfo appInfo = AppContextManager.Context.Value;
 
 			Assembly myAttributesAssembly = typeof(AppInfo).Assembly;
 			string myAttributesAssemblyName = Path.GetFileName(myAttributesAssembly.Location);
@@ -213,6 +213,7 @@ namespace PatchworkLauncher
 		public static void Initialize()
 		{
 			// we need to run setup here so we can combine the registry path with the executable filename
+			Logger.Debug("Trying to set up AppContextManager for first time. Due to serialization speed, this could fail. Retry after initializing PatchManager.");
 			AppContextManager.Setup();
 
 			// try to get game path from xml settings
@@ -338,14 +339,14 @@ namespace PatchworkLauncher
 			try
 			{
 				IPatchInfo patchInfo = instruction.Patch.PatchInfo;
-				string canPatch = patchInfo.CanPatch(AppContextManager.Context);
+				string canPatch = patchInfo.CanPatch(AppContextManager.Context.Value);
 
 				if (canPatch != null)
 				{
 					throw new PatchExecutionException(canPatch);
 				}
 
-				targetFile = patchInfo.GetTargetFile(AppContextManager.Context).FullName;
+				targetFile = patchInfo.GetTargetFile(AppContextManager.Context.Value).FullName;
 
 				if (!instructions.ContainsKey(targetFile))
 				{

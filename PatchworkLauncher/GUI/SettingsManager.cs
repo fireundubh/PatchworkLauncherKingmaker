@@ -108,6 +108,7 @@ namespace PatchworkLauncher
 			{
 				if (File.Exists(xmlPath))
 				{
+					Logger.Debug("File path validated: {0}", xmlPath);
 					return true;
 				}
 			}
@@ -115,6 +116,7 @@ namespace PatchworkLauncher
 			{
 				if (Directory.Exists(xmlPath))
 				{
+					Logger.Debug("Directory path validated: {0}", xmlPath);
 					return true;
 				}
 			}
@@ -127,6 +129,7 @@ namespace PatchworkLauncher
 			{
 				case LinkType.Junction:
 				case LinkType.Symbolic:
+					Logger.Debug("Directory path validated as junction point or symbolic link: {0}", xmlPath);
 					return true;
 				default:
 					return false;
@@ -145,7 +148,7 @@ namespace PatchworkLauncher
 				return;
 			}
 
-			Logger.Information("InvalidateClientPath. Set ClientPath to empty.");
+			Logger.Debug("Cannot validate client path. Setting client path to empty.");
 			XmlData.ClientPath = string.Empty;
 		}
 
@@ -156,7 +159,7 @@ namespace PatchworkLauncher
 				return;
 			}
 
-			Logger.Information("InvalidateGamePath. Set GamePath to empty.");
+			Logger.Debug("Cannot validate game path. Setting game path to empty.");
 			XmlData.GamePath = string.Empty;
 		}
 
@@ -171,6 +174,7 @@ namespace PatchworkLauncher
 				return;
 			}
 
+			Logger.Debug("Reserializing instructions, filtering duplicates and nonexistent files.");
 			instructions.RemoveWhere(x => x != null && (!File.Exists(GetLocalPath(x.Location)) || !IsLocalMod(x.Location)));
 			SerializerInstance.Serialize(settings, FullPath);
 		}
