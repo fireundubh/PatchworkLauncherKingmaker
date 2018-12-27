@@ -90,7 +90,7 @@ namespace PatchworkLauncher
 
 		private static void ResetData()
 		{
-			LaunchManager.GameProcess?.Dispose();
+			LaunchManager.GameProcess = null;
 			SettingsManager.InvalidateXmlData();
 			HistoryManager.RestorePatchedFiles();
 			HistoryManager.Delete();
