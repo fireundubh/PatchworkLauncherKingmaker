@@ -22,6 +22,12 @@ namespace PatchworkLauncher
 
 		#endregion
 
+		#region Public Properties
+
+		public static List<KeyValuePair<string, string>> Logs { get; } = new List<KeyValuePair<string, string>>();
+
+		#endregion
+
 		#region Properties
 
 		private static string FileExtension { get; }
@@ -65,7 +71,11 @@ namespace PatchworkLauncher
 		{
 			string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
 			string logFileName = string.Concat(className, " - ", timestamp, FileExtension);
-			return Path.Combine(LogsDirectory, logFileName);
+			string logPath = Path.Combine(LogsDirectory, logFileName);
+
+			Logs.Add(new KeyValuePair<string, string>(className, logPath));
+
+			return logPath;
 		}
 
 		#endregion

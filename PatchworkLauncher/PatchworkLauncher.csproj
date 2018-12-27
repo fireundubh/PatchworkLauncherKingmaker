@@ -141,6 +141,7 @@
     <Compile Include="GUI\FolderBrowserDialogSettings\ClientFolderBrowserDialogSettings.cs" />
     <Compile Include="GUI\FolderBrowserDialogSettings\GameFolderBrowserDialogSettings.cs" />
     <Compile Include="GUI\FolderBrowserDialogSettings\IFolderBrowserDialogSettings.cs" />
+    <Compile Include="GUI\Helpers\ThreadHelper.cs" />
     <Compile Include="GUI\HistoryManager.cs" />
     <Compile Include="GUI\LogManager.cs" />
     <Compile Include="GUI\PatchManager.cs" />

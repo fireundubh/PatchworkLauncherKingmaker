@@ -25,7 +25,7 @@ namespace PatchworkLauncher
 			                      {
 				                      if (bindable.Value != null && bindable.Value != DefaultAppInfo)
 				                      {
-										  Logger.Information("Context changed. Trying to set client icon.");
+										  Logger.Debug("Context changed. Trying to set client icon.");
 					                      LaunchManager.SetClientIcon();
 				                      }
 			                      };

@@ -6,6 +6,7 @@ using Patchwork;
 using PatchworkLauncher.Enums;
 using PatchworkLauncher.Extensions;
 using PatchworkLauncher.FolderBrowserDialogSettings;
+using PatchworkLauncher.Properties;
 
 namespace PatchworkLauncher
 {
@@ -15,13 +16,18 @@ namespace PatchworkLauncher
 
 		public MainWindow(LaunchManager manager)
 		{
-			this.Manager = manager;
 			this.InitializeComponent();
+
+			this.Manager = manager;
 		}
 
 		#endregion
 
 		#region Public Properties
+
+		public Client ClientType { get; set; } = Client.None;
+
+		public LaunchManager Manager { get; }
 
 		public PictureBox ClientIcon
 		{
@@ -35,13 +41,52 @@ namespace PatchworkLauncher
 			}
 		}
 
-		public Client ClientType { get; set; } = Client.None;
-
-		public LaunchManager Manager { get; }
-
 		#endregion
 
 		#region Methods
+
+		private static bool AskDirectLaunchPermission()
+		{
+			if (PreferencesManager.IgnoreNoClientWarning)
+			{
+				return false;
+			}
+
+			if (!string.IsNullOrEmpty(SettingsManager.XmlData.ClientPath))
+			{
+				return false;
+			}
+
+			DialogResult result = MessageBox.Show(Resources.DirectLaunchWarning, Resources.ConfigurationWarning, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Warning);
+
+			switch (result)
+			{
+				case DialogResult.Abort:
+					return true;
+				case DialogResult.Retry:
+					break;
+				case DialogResult.Ignore:
+					PreferencesManager.IgnoreNoClientWarning = true;
+					break;
+			}
+
+			return false;
+		}
+
+		private static Client SetClientType()
+		{
+			if (string.IsNullOrEmpty(SettingsManager.XmlData.ClientPath))
+			{
+				return Client.None;
+			}
+
+			if (SettingsManager.XmlData.ClientPath.EndsWithIgnoreCase("Steam.exe"))
+			{
+				return Client.Steam;
+			}
+
+			return Client.Galaxy;
+		}
 
 		private static void ResetData()
 		{
@@ -54,24 +99,18 @@ namespace PatchworkLauncher
 
 		private async Task btnLaunchWithMods_Click(object sender, EventArgs e)
 		{
+			if (AskDirectLaunchPermission())
+			{
+				return;
+			}
+
 			if (SettingsManager.XmlData.Instructions.Count != 0)
 			{
 				await this.Manager.LaunchModdedAsync().ConfigureAwait(false);
 				return;
 			}
 
-			MessageBox.Show("No active mods configured.", "Configuration Error", MessageBoxButtons.OK);
-		}
-
-		private async Task btnTestRun_Click(object sender, EventArgs e)
-		{
-			if (SettingsManager.XmlData.Instructions.Count != 0)
-			{
-				await this.Manager.LaunchTestRunAsync().ConfigureAwait(false);
-				return;
-			}
-
-			MessageBox.Show("No active mods configured.", "Configuration Error", MessageBoxButtons.OK);
+			MessageBox.Show(Resources.NoActiveMods, Resources.ConfigurationError, MessageBoxButtons.OK);
 		}
 
 		private void btnClearArguments_Click(object sender, EventArgs e)
@@ -81,7 +120,7 @@ namespace PatchworkLauncher
 
 		private void btnClientPath_Click(object sender, EventArgs e)
 		{
-			DialogResult result = AppContextManager.AskPath(new ClientFolderBrowserDialogSettings { Description = "Select folder containing GalaxyClient.exe or Steam.exe." });
+			DialogResult result = AppContextManager.AskPath(new ClientFolderBrowserDialogSettings { Description = Resources.SelectClientFolder });
 
 			if (result == DialogResult.OK)
 			{
@@ -99,7 +138,7 @@ namespace PatchworkLauncher
 		{
 			DialogResult result = AppContextManager.AskPath(new GameFolderBrowserDialogSettings
 			{
-				Description = string.Format("Select folder containing {0}", AppContextManager.Context.Value.Executable.Name)
+				Description = string.Format(Resources.SelectExecutableFolderFormat, AppContextManager.Context.Value.Executable.Name)
 			});
 
 			if (result == DialogResult.OK)
@@ -111,7 +150,7 @@ namespace PatchworkLauncher
 
 		private void btnHelp_Click(object sender, EventArgs e)
 		{
-			LaunchManager.TryOpenReadme();
+			LaunchManager.TryOpenTextFile(LaunchManager.TxtPathReadme);
 		}
 
 		private void btnLaunchNoMods_Click(object sender, EventArgs e)
@@ -122,6 +161,20 @@ namespace PatchworkLauncher
 		private void btnPatreon_Click(object sender, EventArgs e)
 		{
 			Process.Start("https://www.patreon.com/fireundubh")?.Dispose();
+		}
+
+		private void btnTestRun_Click(object sender, EventArgs e)
+		{
+			DialogResult result = MessageBox.Show("Do you want to open the log after the test run?", "Preferences", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+			PreferencesManager.OpenLogAfterPatch = result == DialogResult.Yes;
+
+			if (SettingsManager.XmlData.Instructions.Count != 0)
+			{
+				this.Manager.LaunchTestRunAsync().ConfigureAwait(false);
+				return;
+			}
+
+			MessageBox.Show(Resources.NoActiveMods, Resources.ConfigurationError, MessageBoxButtons.OK);
 		}
 
 		private void guiHome_FormClosed(object sender, FormClosedEventArgs e)
@@ -154,13 +207,14 @@ namespace PatchworkLauncher
 
 			this.guiGameIcon.Image = LaunchManager.ProgramIcon;
 			this.guiGameIcon.Refresh();
-			this.guiPwVersion.Text = PatchworkInfo.Version + " (#playwithfire)";
+			this.guiPwVersion.Text = string.Format(Resources.PatchworkVersionFormat, PatchworkInfo.Version);
 			this.guiGameName.Text = AppContextManager.Context.Value.AppName;
-			this.guiGameVersion.Text = "AppInfo v" + AppContextManager.Context.Value.AppVersion;
+			this.guiGameVersion.Text = string.Format(Resources.AppInfoVersionFormat, AppContextManager.Context.Value.AppVersion);
 
 			this.tbArguments.Text = SettingsManager.XmlData.Arguments;
 
-			this.ClientType = string.IsNullOrEmpty(SettingsManager.XmlData.ClientPath) ? Client.None : SettingsManager.XmlData.ClientPath.EndsWithIgnoreCase("Steam.exe") ? Client.Steam : Client.Galaxy;
+			// currently used only by LaunchManager.LaunchProcess as argument
+			this.ClientType = SetClientType();
 
 			// async click handlers
 			this.btnLaunchNoMods.Click += (o, args) =>
@@ -175,10 +229,10 @@ namespace PatchworkLauncher
 												await this.btnLaunchWithMods_Click(o, args).ConfigureAwait(false);
 			                                };
 
-			this.btnTestRun.Click += async (o, args) =>
+			this.btnTestRun.Click += (o, args) =>
 			                         {
 				                         ResetData();
-										 await this.btnTestRun_Click(o, args).ConfigureAwait(false);
+				                         this.btnTestRun_Click(o, args);
 			                         };
 		}
 

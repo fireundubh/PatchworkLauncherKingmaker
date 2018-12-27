@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Patchwork.Engine.Utility;
@@ -59,11 +60,11 @@ namespace PatchworkLauncher
 
 		public static Image ProgramIcon { get; private set; }
 
+		public static MainWindow MainWindow { get; private set; }
+
 		public static Process GameProcess { get; set; }
 
 		public static string TxtPathReadme { get; }
-
-		public static MainWindow MainWindow { get; private set; }
 
 		#endregion
 
@@ -151,129 +152,6 @@ namespace PatchworkLauncher
 			}
 		}
 
-		public static void TryOpenReadme()
-		{
-			if (!File.Exists(TxtPathReadme))
-			{
-				Logger.Error("Cannot open readme file because the file does not exist");
-				return;
-			}
-
-			string textFilePath = TxtPathReadme.Quote();
-
-			Process process;
-
-			switch (Environment.OSVersion.Platform)
-			{
-				// windows can "run" text files using the default editor
-				case PlatformID.Win32NT:
-					process = Process.Start(textFilePath);
-					break;
-				default:
-					process = TryOpenReadmeLinux(textFilePath);
-					break;
-			}
-
-			process?.Dispose();
-		}
-
-		/// <exception cref="T:PatchworkLauncher.PatchingProcessException">Cannot switch files safely during the patching process</exception>
-		public static void TrySwitchFilesSafely(string sourcePath, string destinationPath, string backupPath, PatchGroup patchGroup)
-		{
-			try
-			{
-				PatchingHelper.SwitchFilesSafely(sourcePath, destinationPath, backupPath);
-			}
-			catch (Exception exception)
-			{
-				throw new PatchingProcessException(exception)
-				{
-					AssociatedInstruction = null,
-					AssociatedPatchGroup = patchGroup,
-					Step = PatchProcessingStep.PerformingSwitch
-				};
-			}
-		}
-
-		public MainWindow StartHomeWindow()
-		{
-			MainWindow.ShowOrFocus();
-			return MainWindow;
-		}
-
-		/// <exception cref="T:System.ComponentModel.Win32Exception">There was an error in launching the process.</exception>
-		public async Task LaunchModdedAsync(LaunchType launchType = LaunchType.Patch)
-		{
-			MainWindow.Enabled = false;
-
-			await this.PatchAsync(launchType).ConfigureAwait(false);
-			this.AskUnlockGUI(true);
-
-			LaunchProcess(MainWindow.ClientType);
-		}
-
-		public async Task LaunchTestRunAsync(LaunchType launchType = LaunchType.Test)
-		{
-			MainWindow.Enabled = false;
-
-			XmlHistory history = await this.PatchAsync(launchType).ConfigureAwait(false);
-			this.AskUnlockGUI();
-
-			PatchingHelper.RestorePatchedFiles(AppContextManager.Context.Value, history.Files);
-		}
-
-		public async Task<XmlHistory> PatchAsync(LaunchType launchType)
-		{
-			State.Value = LaunchManagerState.IsPatching;
-
-			var history = new XmlHistory();
-			history.Success = false;
-
-			try
-			{
-				var totalProgress = new ProgressObject();
-
-				using (var logForm = new LogForm(totalProgress))
-				{
-					logForm.Icon = MainWindow.Icon;
-
-					logForm.Show();
-
-					try
-					{
-						List<PatchGroup> patches = PatchManager.SaveInstructions(ref history);
-						await Task.Run(() => PatchManager.ApplyInstructions(launchType, patches.ToList(), totalProgress)).ConfigureAwait(false);
-						history.Success = true;
-					}
-					catch (PatchingProcessException exception)
-					{
-						Logger.Show(exception);
-					}
-
-					if (!history.Success)
-					{
-						PatchingHelper.RestorePatchedFiles(AppContextManager.Context.Value, history.Files);
-					}
-
-					logForm.Close();
-				}
-			}
-			catch (Exception exception)
-			{
-				var exceptionMessage = new PatchingExceptionMessage
-				{
-					Hint = "Patch the game",
-					Message = exception.Message
-				};
-
-				Logger.Show(exceptionMessage);
-			}
-
-			State.Value = LaunchManagerState.Idle;
-
-			return history;
-		}
-
 		public static void SetClientIcon()
 		{
 			if (AppContextManager.Context.Value == null)
@@ -326,6 +204,133 @@ namespace PatchworkLauncher
 			}
 		}
 
+		public static void TryOpenTextFile(string path)
+		{
+			if (!File.Exists(path))
+			{
+				Logger.Error("Cannot open readme file because the file does not exist");
+				return;
+			}
+
+			string textFilePath = path.Quote();
+
+			Process process;
+
+			switch (Environment.OSVersion.Platform)
+			{
+				// windows can "run" text files using the default editor
+				case PlatformID.Win32NT:
+					process = Process.Start(textFilePath);
+					break;
+				default:
+					process = TryOpenTextFileLinux(textFilePath);
+					break;
+			}
+
+			process?.Dispose();
+		}
+
+		/// <exception cref="T:PatchworkLauncher.PatchingProcessException">Cannot switch files safely during the patching process</exception>
+		public static void TrySwitchFilesSafely(string sourcePath, string destinationPath, string backupPath, PatchGroup patchGroup)
+		{
+			try
+			{
+				PatchingHelper.SwitchFilesSafely(sourcePath, destinationPath, backupPath);
+			}
+			catch (Exception exception)
+			{
+				throw new PatchingProcessException(exception)
+				{
+					AssociatedInstruction = null,
+					AssociatedPatchGroup = patchGroup,
+					Step = PatchProcessingStep.PerformingSwitch
+				};
+			}
+		}
+
+		public MainWindow StartHomeWindow()
+		{
+			MainWindow.ShowOrFocus();
+			return MainWindow;
+		}
+
+		/// <exception cref="T:System.ComponentModel.Win32Exception">There was an error in launching the process.</exception>
+		public async Task LaunchModdedAsync(LaunchType launchType = LaunchType.Patch)
+		{
+			MainWindow.Enabled = false;
+			new Thread(o => AskUnlockGUI(true)).Start();
+
+			State.Value = LaunchManagerState.IsPatching;
+
+			await this.PatchAsync(launchType).ConfigureAwait(false);
+
+			State.Value = LaunchManagerState.Idle;
+
+			LaunchProcess(MainWindow.ClientType);
+		}
+
+		public async Task LaunchTestRunAsync(LaunchType launchType = LaunchType.Test)
+		{
+			MainWindow.Enabled = false;
+			new Thread(o => AskUnlockGUI()).Start();
+
+			State.Value = LaunchManagerState.IsPatching;
+
+			XmlHistory history = await this.PatchAsync(launchType).ConfigureAwait(false);
+
+			State.Value = LaunchManagerState.Idle;
+
+			PatchingHelper.RestorePatchedFiles(AppContextManager.Context.Value, history.Files);
+
+			if (PreferencesManager.OpenLogAfterPatch)
+			{
+				try
+				{
+					string logPath = LogManager.Logs.First(kvp => kvp.Key == "PatchManager").Value;
+
+					TryOpenTextFile(logPath);
+				}
+				catch (Exception exception)
+				{
+					Logger.Error(exception, "Cannot open log file after test run");
+				}
+			}
+		}
+
+		public async Task<XmlHistory> PatchAsync(LaunchType launchType)
+		{
+			var history = new XmlHistory();
+			history.Success = false;
+
+			var totalProgress = new ProgressObject();
+
+			var logForm = new LogForm(totalProgress);
+
+			logForm.InvokeIfRequired(() => logForm.Show());
+
+			try
+			{
+				List<PatchGroup> patches = PatchManager.SaveInstructions(ref history);
+
+				await Task.Run(() => PatchManager.ApplyInstructions(launchType, patches, totalProgress)).ConfigureAwait(false);
+
+				history.Success = true;
+			}
+			catch (Exception exception)
+			{
+				Logger.Error(exception, "Patching failed because instructions cannot be applied.");
+			}
+
+			if (!history.Success)
+			{
+				PatchingHelper.RestorePatchedFiles(AppContextManager.Context.Value, history.Files);
+			}
+
+			logForm.InvokeIfRequired(() => CloseForm(logForm));
+
+			return history;
+		}
+
 		#endregion
 
 		#region Methods
@@ -370,7 +375,7 @@ namespace PatchworkLauncher
 			return editors.Select(editor => Process.Start(editor, editorArgument)).FirstOrDefault(result => result != null);
 		}
 
-		private static Process TryOpenReadmeLinux(string textFilePath)
+		private static Process TryOpenTextFileLinux(string textFilePath)
 		{
 			bool useDefaultEditor;
 			string defaultEditor = GetDefaultEditor(out useDefaultEditor);
@@ -414,7 +419,7 @@ namespace PatchworkLauncher
 			return defaultEditor;
 		}
 
-		private void AskUnlockGUI(bool runningGame = false)
+		private static void AskUnlockGUI(bool runningGame = false)
 		{
 			string message;
 
@@ -432,19 +437,28 @@ namespace PatchworkLauncher
 			}
 			else
 			{
-				message = Resources.UnlockRunningText;
+				message = Resources.UnlockTestRunText;
 			}
 
 			using (var messageBox = new UnlockMessageBox(message))
 			{
 				DialogResult result = messageBox.ShowDialog(MainWindow);
 
-				if (result == DialogResult.OK)
+				if (result != DialogResult.OK)
 				{
-					MainWindow.Enabled = true;
-					MainWindow.ShowOrFocus();
+					Logger.Fatal("User abnormally terminated lock. Exiting.");
+					Exit();
 				}
+
+				MainWindow.Enabled = true;
+				MainWindow.ShowOrFocus();
 			}
+		}
+
+		private static void CloseForm(LogForm logForm)
+		{
+			logForm?.Close();
+			logForm?.Dispose();
 		}
 
 		private void Initialize()

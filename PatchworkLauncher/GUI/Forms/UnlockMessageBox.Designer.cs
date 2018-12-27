@@ -106,6 +106,7 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Running Processes";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UnlockMessageBox_FormClosing);
+			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.UnlockMessageBox_FormClosed);
 			this.tblLayout.ResumeLayout(false);
 			this.tblLayout.PerformLayout();
 			this.ResumeLayout(false);

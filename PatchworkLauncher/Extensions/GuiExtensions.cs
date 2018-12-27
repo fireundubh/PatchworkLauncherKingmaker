@@ -52,14 +52,7 @@ namespace PatchworkLauncher.Extensions
 
 		private static void Dispatch<TControl>(this TControl control, Action action) where TControl : Control
 		{
-			if (control?.InvokeRequired == true)
-			{
-				control.Invoke(action);
-			}
-			else
-			{
-				action();
-			}
+			control?.InvokeIfRequired(() => action());
 		}
 
 		#endregion

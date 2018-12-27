@@ -133,7 +133,31 @@
   <data name="UnlockRunningText" xml:space="preserve">
     <value>Patchwork Launcher is locked while the game is running.</value>
   </data>
-  <data name="UnlockTestRunFormat" xml:space="preserve">
+  <data name="UnlockTestRunText" xml:space="preserve">
     <value>Patchwork Launcher is locked during the test run process.</value>
+  </data>
+  <data name="DirectLaunchWarning" xml:space="preserve">
+    <value>No client path set. Are you sure you want to launch the game directly, instead of through Galaxy or Steam? Launching directly will disable achievements, cloud saves, statistics tracking (e.g., time played), and DLC.</value>
+  </data>
+  <data name="NoActiveMods" xml:space="preserve">
+    <value>No active mods configured.</value>
+  </data>
+  <data name="ConfigurationError" xml:space="preserve">
+    <value>Configuration Error</value>
+  </data>
+  <data name="ConfigurationWarning" xml:space="preserve">
+    <value>Configuration Warning</value>
+  </data>
+  <data name="AppInfoVersionFormat" xml:space="preserve">
+    <value>AppInfo v{0}</value>
+  </data>
+  <data name="PatchworkVersionFormat" xml:space="preserve">
+    <value>{0} (#playwithfire)</value>
+  </data>
+  <data name="SelectClientFolder" xml:space="preserve">
+    <value>Select folder containing GalaxyClient.exe or Steam.exe.</value>
+  </data>
+  <data name="SelectExecutableFolderFormat" xml:space="preserve">
+    <value>Select folder containing {0}.</value>
   </data>
 </root>

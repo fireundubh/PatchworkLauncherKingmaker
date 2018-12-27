@@ -14,8 +14,9 @@ namespace PatchworkLauncher
 
 		public LogForm(ProgressObject list)
 		{
-			this.List = Bindable.List(new ProgressList(list));
 			this.InitializeComponent();
+
+			this.List = Bindable.List(new ProgressList(list));
 		}
 
 		#endregion
@@ -103,7 +104,12 @@ namespace PatchworkLauncher
 
 			Func<ProgressObject, Control> progressTemplate = this.BuildProgressBar;
 
-			this.List.Binding = this.guiPanel.Controls.CastList().ProjectList(progressTemplate).ToBindable().WithDispatcher(act => this.Invoke(act)).ToBinding(BindingMode.FromTarget);
+			this.List.Binding = this.guiPanel.Controls.CastList().ProjectList(progressTemplate).ToBindable().WithDispatcher(this.DispatchAction).ToBinding(BindingMode.FromTarget);
+		}
+
+		private void DispatchAction(Action act)
+		{
+			this.InvokeIfRequired(() => act());
 		}
 
 		#endregion

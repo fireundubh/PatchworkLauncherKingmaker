@@ -61,6 +61,42 @@ namespace PatchworkLauncher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AppInfo v{0}.
+        /// </summary>
+        internal static string AppInfoVersionFormat {
+            get {
+                return ResourceManager.GetString("AppInfoVersionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configuration Error.
+        /// </summary>
+        internal static string ConfigurationError {
+            get {
+                return ResourceManager.GetString("ConfigurationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configuration Warning.
+        /// </summary>
+        internal static string ConfigurationWarning {
+            get {
+                return ResourceManager.GetString("ConfigurationWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No client path set. Are you sure you want to launch the game directly, instead of through Galaxy or Steam? Launching directly will disable achievements, cloud saves, statistics tracking (e.g., time played), and DLC..
+        /// </summary>
+        internal static string DirectLaunchWarning {
+            get {
+                return ResourceManager.GetString("DirectLaunchWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap IconMed {
@@ -81,12 +117,48 @@ namespace PatchworkLauncher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No active mods configured..
+        /// </summary>
+        internal static string NoActiveMods {
+            get {
+                return ResourceManager.GetString("NoActiveMods", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (#playwithfire).
+        /// </summary>
+        internal static string PatchworkVersionFormat {
+            get {
+                return ResourceManager.GetString("PatchworkVersionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap patreon {
             get {
                 object obj = ResourceManager.GetObject("patreon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select folder containing GalaxyClient.exe or Steam.exe..
+        /// </summary>
+        internal static string SelectClientFolder {
+            get {
+                return ResourceManager.GetString("SelectClientFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select folder containing {0}..
+        /// </summary>
+        internal static string SelectExecutableFolderFormat {
+            get {
+                return ResourceManager.GetString("SelectExecutableFolderFormat", resourceCulture);
             }
         }
         
@@ -111,9 +183,9 @@ namespace PatchworkLauncher.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Patchwork Launcher is locked during the test run process..
         /// </summary>
-        internal static string UnlockTestRunFormat {
+        internal static string UnlockTestRunText {
             get {
-                return ResourceManager.GetString("UnlockTestRunFormat", resourceCulture);
+                return ResourceManager.GetString("UnlockTestRunText", resourceCulture);
             }
         }
     }

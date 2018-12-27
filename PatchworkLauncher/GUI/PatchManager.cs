@@ -76,29 +76,6 @@ namespace PatchworkLauncher
 			return patchingManifest;
 		}
 
-		private static void SetTaskData(this ProgressObject progress, string taskTitle = "", string taskText = "", int total = -1, bool increment = false)
-		{
-			if (!string.IsNullOrEmpty(taskTitle))
-			{
-				progress.TaskTitle.Value = taskTitle;
-			}
-
-			if (!string.IsNullOrEmpty(taskText))
-			{
-				progress.TaskText.Value = taskText;
-			}
-
-			if (total > -1)
-			{
-				progress.Total.Value = total;
-			}
-
-			if (increment)
-			{
-				progress.Current.Value++;
-			}
-		}
-
 		public static void ApplyInstructions(LaunchType launchType, List<PatchGroup> patchGroups, ProgressObject totalProgress)
 		{
 			//TODO: Use a different progress tracking system and make the entire patching operation more recoverable and fault-tolerant.
@@ -311,6 +288,29 @@ namespace PatchworkLauncher
 			instructions.Add(xmlInstruction);
 
 			SettingsManager.XmlData.Instructions = instructions;
+		}
+
+		private static void SetTaskData(this ProgressObject progress, string taskTitle = "", string taskText = "", int total = -1, bool increment = false)
+		{
+			if (!string.IsNullOrEmpty(taskTitle))
+			{
+				progress.TaskTitle.Value = taskTitle;
+			}
+
+			if (!string.IsNullOrEmpty(taskText))
+			{
+				progress.TaskText.Value = taskText;
+			}
+
+			if (total > -1)
+			{
+				progress.Total.Value = total;
+			}
+
+			if (increment)
+			{
+				progress.Current.Value++;
+			}
 		}
 
 		private static void TryAddPatch(string assemblyPath)

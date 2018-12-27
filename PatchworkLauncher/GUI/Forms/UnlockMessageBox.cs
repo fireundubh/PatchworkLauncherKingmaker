@@ -60,7 +60,6 @@ namespace PatchworkLauncher
 
 		private void btnUnlock_Click(object sender, EventArgs e)
 		{
-			this.DialogResult = DialogResult.OK;
 			this.Close();
 		}
 
@@ -73,5 +72,10 @@ namespace PatchworkLauncher
 		}
 
 		#endregion
+
+		private void UnlockMessageBox_FormClosed(object sender, FormClosedEventArgs e)
+		{
+			this.DialogResult = DialogResult.OK;
+		}
 	}
 }

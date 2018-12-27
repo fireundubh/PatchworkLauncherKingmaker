@@ -13,6 +13,12 @@ namespace PatchworkLauncher
 {
 	public static class SettingsManager
 	{
+		#region Static Fields
+
+		private static readonly object ThreadLock = new object();
+
+		#endregion
+
 		#region Constructors and Destructors
 
 		static SettingsManager()
@@ -37,7 +43,10 @@ namespace PatchworkLauncher
 			}
 			set
 			{
-				SerializerInstance.Serialize(value, FullPath);
+				lock (ThreadLock)
+				{
+					SerializerInstance.Serialize(value, FullPath);
+				}
 			}
 		}
 
@@ -176,7 +185,7 @@ namespace PatchworkLauncher
 
 			Logger.Debug("Reserializing instructions, filtering duplicates and nonexistent files.");
 			instructions.RemoveWhere(x => x != null && (!File.Exists(GetLocalPath(x.Location)) || !IsLocalMod(x.Location)));
-			SerializerInstance.Serialize(settings, FullPath);
+			XmlSettings = settings;
 		}
 
 		#endregion
@@ -193,9 +202,13 @@ namespace PatchworkLauncher
 				}
 				set
 				{
-					XmlSettings settings = XmlSettings;
-					settings.Instructions = value;
-					SerializerInstance.Serialize(settings, FullPath);
+					lock (ThreadLock)
+					{
+						XmlSettings settings = XmlSettings;
+						settings.Instructions = value;
+						SerializerInstance.Serialize(settings, FullPath);
+						XmlSettings = settings;
+					}
 				}
 			}
 
@@ -207,9 +220,13 @@ namespace PatchworkLauncher
 				}
 				set
 				{
-					XmlSettings settings = XmlSettings;
-					settings.Options.Arguments = value;
-					SerializerInstance.Serialize(settings, FullPath);
+					lock (ThreadLock)
+					{
+						XmlSettings settings = XmlSettings;
+						settings.Options.Arguments = value;
+						SerializerInstance.Serialize(settings, FullPath);
+						XmlSettings = settings;
+					}
 				}
 			}
 
@@ -221,9 +238,12 @@ namespace PatchworkLauncher
 				}
 				set
 				{
-					XmlSettings settings = XmlSettings;
-					settings.Launcher.Files.Client = value;
-					SerializerInstance.Serialize(settings, FullPath);
+					lock (ThreadLock)
+					{
+						XmlSettings settings = XmlSettings;
+						settings.Launcher.Files.Client = value;
+						XmlSettings = settings;
+					}
 				}
 			}
 
@@ -235,9 +255,12 @@ namespace PatchworkLauncher
 				}
 				set
 				{
-					XmlSettings settings = XmlSettings;
-					settings.Launcher.Folders.Game = value;
-					SerializerInstance.Serialize(settings, FullPath);
+					lock (ThreadLock)
+					{
+						XmlSettings settings = XmlSettings;
+						settings.Launcher.Folders.Game = value;
+						XmlSettings = settings;
+					}
 				}
 			}
 
@@ -249,9 +272,12 @@ namespace PatchworkLauncher
 				}
 				set
 				{
-					XmlSettings settings = XmlSettings;
-					settings.Launcher.Folders.Logs = value;
-					SerializerInstance.Serialize(settings, FullPath);
+					lock (ThreadLock)
+					{
+						XmlSettings settings = XmlSettings;
+						settings.Launcher.Folders.Logs = value;
+						XmlSettings = settings;
+					}
 				}
 			}
 
@@ -263,9 +289,12 @@ namespace PatchworkLauncher
 				}
 				set
 				{
-					XmlSettings settings = XmlSettings;
-					settings.Launcher.Folders.Mods = value;
-					SerializerInstance.Serialize(settings, FullPath);
+					lock (ThreadLock)
+					{
+						XmlSettings settings = XmlSettings;
+						settings.Launcher.Folders.Mods = value;
+						XmlSettings = settings;
+					}
 				}
 			}
 

@@ -11,6 +11,12 @@ namespace PatchworkLauncher
 	/// </summary>
 	public static class PreferencesManager
 	{
+		#region Static Fields
+
+		private static readonly object ThreadLock = new object();
+
+		#endregion
+
 		#region Constructors and Destructors
 
 		static PreferencesManager()
@@ -25,6 +31,40 @@ namespace PatchworkLauncher
 
 		#region Public Properties
 
+		public static bool IgnoreNoClientWarning
+		{
+			get
+			{
+				return Preferences.IgnoreNoClientWarning;
+			}
+			set
+			{
+				lock (ThreadLock)
+				{
+					XmlPreferences preferences = Preferences;
+					preferences.IgnoreNoClientWarning = value;
+					SerializerInstance.Serialize(preferences, FullPath);
+				}
+			}
+		}
+
+		public static bool OpenLogAfterPatch
+		{
+			get
+			{
+				return Preferences.OpenLogAfterPatch;
+			}
+			set
+			{
+				lock (ThreadLock)
+				{
+					XmlPreferences preferences = Preferences;
+					preferences.OpenLogAfterPatch = value;
+					SerializerInstance.Serialize(preferences, FullPath);
+				}
+			}
+		}
+
 		public static string FullPath { get; }
 
 		public static XmlPreferences Preferences
@@ -35,7 +75,10 @@ namespace PatchworkLauncher
 			}
 			set
 			{
-				SerializerInstance.Serialize(value, FullPath);
+				lock (ThreadLock)
+				{
+					SerializerInstance.Serialize(value, FullPath);
+				}
 			}
 		}
 
@@ -67,8 +110,13 @@ namespace PatchworkLauncher
 
 		private static void CreatePreferences()
 		{
-			if (!File.Exists(FullPath))
+			lock (ThreadLock)
 			{
+				if (File.Exists(FullPath))
+				{
+					return;
+				}
+
 				var preferences = new XmlPreferences();
 				preferences.AlwaysPatch = true;
 				preferences.DontCopyFiles = true;

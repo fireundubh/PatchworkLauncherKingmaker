@@ -12,6 +12,8 @@ namespace PatchworkLauncher
 
 		public bool DontCopyFiles { get; set; } = true;
 
+		public bool IgnoreNoClientWarning { get; set; } = false;
+
 		public bool OpenLogAfterPatch { get; set; } = false;
 
 		public LogEventLevel MinimumEventLevel { get; set; } = LogEventLevel.Information;
