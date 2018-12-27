@@ -421,28 +421,11 @@ namespace PatchworkLauncher
 
 		private static void AskUnlockGUI(bool runningGame = false)
 		{
-			string message;
-
-			if (runningGame)
-			{
-				if (GameProcess != null)
-				{
-					string fileName = Path.GetFileName(GameProcess.StartInfo.FileName);
-					message = string.Format(Resources.UnlockRunningFormat, Environment.NewLine, Environment.NewLine, fileName, GameProcess.Id);
-				}
-				else
-				{
-					message = Resources.UnlockRunningText;
-				}
-			}
-			else
-			{
-				message = Resources.UnlockTestRunText;
-			}
+			string message = runningGame ? Resources.UnlockRunningText : Resources.UnlockTestRunText;
 
 			using (var messageBox = new UnlockMessageBox(message))
 			{
-				DialogResult result = messageBox.ShowDialog(MainWindow);
+				DialogResult result = MainWindow.InvokeDialogIfRequired(messageBox);
 
 				if (result != DialogResult.OK)
 				{
@@ -450,8 +433,11 @@ namespace PatchworkLauncher
 					Exit();
 				}
 
-				MainWindow.Enabled = true;
-				MainWindow.ShowOrFocus();
+				MainWindow.InvokeIfRequired(delegate
+				                            {
+					                            MainWindow.Enabled = true;
+					                            MainWindow.ShowOrFocus();
+				                            });
 			}
 		}
 
