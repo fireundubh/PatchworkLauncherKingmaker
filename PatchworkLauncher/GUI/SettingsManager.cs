@@ -130,7 +130,11 @@ namespace PatchworkLauncher
 				}
 			}
 
-			// TODO: might fail on linux
+			if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+			{
+				return false;
+			}
+
 			IReparsePointProvider provider = ReparsePointFactory.Provider;
 			LinkType linkType = provider.GetLinkType(xmlPath);
 
