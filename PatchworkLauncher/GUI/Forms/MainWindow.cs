@@ -88,6 +88,24 @@ namespace PatchworkLauncher
 			return Client.Galaxy;
 		}
 
+		private static void GoToURL(string url)
+		{
+			switch (Environment.OSVersion.Platform)
+			{
+				case PlatformID.Win32NT:
+					Process.Start(url)?.Dispose();
+					break;
+				case PlatformID.MacOSX:
+					Process.Start("open", url)?.Dispose();
+					break;
+				case PlatformID.Unix:
+					Process.Start("xdg-open", url)?.Dispose();
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
 		private static void ResetData()
 		{
 			LaunchManager.GameProcess = null;
@@ -160,7 +178,12 @@ namespace PatchworkLauncher
 
 		private void btnPatreon_Click(object sender, EventArgs e)
 		{
-			Process.Start("https://www.patreon.com/fireundubh")?.Dispose();
+			GoToURL("https://www.patreon.com/fireundubh");
+		}
+
+		private void btnPayPal_Click(object sender, EventArgs e)
+		{
+			GoToURL("https://www.nexusmods.com/Core/Libs/Common/Widgets/PayPalPopUp?user=513981");
 		}
 
 		private void btnTestRun_Click(object sender, EventArgs e)

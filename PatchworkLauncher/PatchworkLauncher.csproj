@@ -252,7 +252,8 @@
     <Content Include="readme.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Resources\patreon.png" />
+    <None Include="Resources\Patreon_32x32.png" />
+    <None Include="Resources\PayPal_32x32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

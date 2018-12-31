@@ -33,9 +33,9 @@
 			this.lblMessage = new System.Windows.Forms.Label();
 			this.tblLayout.SuspendLayout();
 			this.SuspendLayout();
-			// 
+			//
 			// tblLayout
-			// 
+			//
 			this.tblLayout.ColumnCount = 1;
 			this.tblLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tblLayout.Controls.Add(this.btnUnlock, 0, 1);
@@ -51,16 +51,16 @@
 			this.tblLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tblLayout.Size = new System.Drawing.Size(288, 145);
 			this.tblLayout.TabIndex = 0;
-			// 
+			//
 			// btnUnlock
-			// 
-			this.btnUnlock.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+			//
+			this.btnUnlock.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnUnlock.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.btnUnlock.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.btnUnlock.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.btnUnlock.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+			this.btnUnlock.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
 			this.btnUnlock.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.btnUnlock.Location = new System.Drawing.Point(10, 110);
 			this.btnUnlock.Margin = new System.Windows.Forms.Padding(10);
@@ -70,15 +70,15 @@
 			this.btnUnlock.Text = "UNLOCK";
 			this.btnUnlock.UseVisualStyleBackColor = false;
 			this.btnUnlock.Click += new System.EventHandler(this.btnUnlock_Click);
-			// 
+			//
 			// lblMessage
-			// 
-			this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+			//
+			this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblMessage.AutoSize = true;
 			this.lblMessage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.lblMessage.Font = new System.Drawing.Font("Arial", 13F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
+			this.lblMessage.Font = new System.Drawing.Font("Tahoma", 13F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
 			this.lblMessage.Location = new System.Drawing.Point(3, 0);
 			this.lblMessage.Name = "lblMessage";
 			this.lblMessage.Padding = new System.Windows.Forms.Padding(10);
@@ -86,9 +86,9 @@
 			this.lblMessage.TabIndex = 1;
 			this.lblMessage.Text = "Body Text";
 			this.lblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
+			//
 			// UnlockMessageBox
-			// 
+			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.Black;

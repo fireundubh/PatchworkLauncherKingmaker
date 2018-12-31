@@ -137,9 +137,19 @@ namespace PatchworkLauncher.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap patreon {
+        internal static System.Drawing.Bitmap Patreon_32x32 {
             get {
-                object obj = ResourceManager.GetObject("patreon", resourceCulture);
+                object obj = ResourceManager.GetObject("Patreon_32x32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PayPal_32x32 {
+            get {
+                object obj = ResourceManager.GetObject("PayPal_32x32", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
