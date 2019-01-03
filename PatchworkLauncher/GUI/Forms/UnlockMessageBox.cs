@@ -15,22 +15,8 @@ namespace PatchworkLauncher
 		public UnlockMessageBox(string message)
 		{
 			this.InitializeComponent();
+
 			this.MessageText = message;
-		}
-
-		public UnlockMessageBox(string messageText, string buttonText)
-		{
-			this.InitializeComponent();
-			this.MessageText = messageText;
-			this.ButtonText = buttonText;
-		}
-
-		public UnlockMessageBox(string messageText, string buttonText, IWin32Window owner)
-		{
-			this.InitializeComponent();
-			this.MessageText = messageText;
-			this.ButtonText = buttonText;
-			this.Owner = (Form) owner;
 		}
 
 		#endregion
