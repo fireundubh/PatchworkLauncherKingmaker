@@ -1,6 +1,6 @@
 ﻿namespace PatchworkLauncher.Enums
 {
-	public enum Client
+	public enum ClientType
 	{
 		None,
 		Galaxy,

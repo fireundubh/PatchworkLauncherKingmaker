@@ -25,10 +25,11 @@ namespace PatchworkLauncher
 
 		#region Public Properties
 
-		public Client ClientType { get; set; } = Client.None;
+		public ClientType ClientType { get; set; } = ClientType.None;
 
 		public LaunchManager Manager { get; }
 
+		// ReSharper disable once ConvertToAutoProperty
 		public PictureBox ClientIcon
 		{
 			get
@@ -39,6 +40,19 @@ namespace PatchworkLauncher
 			{
 				this.pbClientIcon = value;
 			}
+		}
+
+		#endregion
+
+		#region Public Methods and Operators
+
+		public static void ResetData()
+		{
+			LaunchManager.GameProcess = null;
+			SettingsManager.InvalidateXmlData();
+			HistoryManager.RestorePatchedFiles();
+			HistoryManager.Delete();
+			LaunchManager.SetState(LaunchManagerState.Idle);
 		}
 
 		#endregion
@@ -73,19 +87,19 @@ namespace PatchworkLauncher
 			return false;
 		}
 
-		private static Client SetClientType()
+		private static ClientType SetClientType()
 		{
 			if (string.IsNullOrEmpty(SettingsManager.XmlData.ClientPath))
 			{
-				return Client.None;
+				return ClientType.None;
 			}
 
 			if (SettingsManager.XmlData.ClientPath.EndsWithIgnoreCase("Steam.exe"))
 			{
-				return Client.Steam;
+				return ClientType.Steam;
 			}
 
-			return Client.Galaxy;
+			return ClientType.Galaxy;
 		}
 
 		private static void GoToURL(string url)
@@ -106,16 +120,7 @@ namespace PatchworkLauncher
 			}
 		}
 
-		private static void ResetData()
-		{
-			LaunchManager.GameProcess = null;
-			SettingsManager.InvalidateXmlData();
-			HistoryManager.RestorePatchedFiles();
-			HistoryManager.Delete();
-			LaunchManager.Idle();
-		}
-
-		private async Task btnLaunchWithMods_Click(object sender, EventArgs e)
+		private async Task btnLaunchWithMods_ClickAsync(object sender, EventArgs e)
 		{
 			if (AskDirectLaunchPermission())
 			{
@@ -131,64 +136,42 @@ namespace PatchworkLauncher
 			MessageBox.Show(Resources.NoActiveMods, Resources.ConfigurationError, MessageBoxButtons.OK);
 		}
 
-		private void btnClearArguments_Click(object sender, EventArgs e)
-		{
-			this.tbArguments.Clear();
-		}
-
 		private void btnClientPath_Click(object sender, EventArgs e)
 		{
-			DialogResult result = AppContextManager.AskPath(new ClientFolderBrowserDialogSettings { Description = Resources.SelectClientFolder });
+			var settings = new ClientFolderBrowserDialogSettings
+			{
+				Description = Resources.SelectClientFolder
+			};
+
+			DialogResult result = AppContextManager.AskPath(settings);
 
 			if (result == DialogResult.OK)
 			{
 				LaunchManager.SetClientIcon();
 				this.ShowOrFocus();
 			}
-		}
-
-		private void btnClose_Click(object sender, EventArgs e)
-		{
-			LaunchManager.Exit();
 		}
 
 		private void btnGamePath_Click(object sender, EventArgs e)
 		{
-			DialogResult result = AppContextManager.AskPath(new GameFolderBrowserDialogSettings
+			var settings = new GameFolderBrowserDialogSettings
 			{
 				Description = string.Format(Resources.SelectExecutableFolderFormat, AppContextManager.Context.Value.Executable.Name)
-			});
+			};
+
+			DialogResult result = AppContextManager.AskPath(settings);
 
 			if (result == DialogResult.OK)
 			{
 				LaunchManager.SetClientIcon();
 				this.ShowOrFocus();
 			}
-		}
-
-		private void btnHelp_Click(object sender, EventArgs e)
-		{
-			LaunchManager.TryOpenTextFile(LaunchManager.TxtPathReadme);
-		}
-
-		private void btnLaunchNoMods_Click(object sender, EventArgs e)
-		{
-			LaunchManager.LaunchProcess(this.ClientType);
-		}
-
-		private void btnPatreon_Click(object sender, EventArgs e)
-		{
-			GoToURL("https://www.patreon.com/fireundubh");
-		}
-
-		private void btnPayPal_Click(object sender, EventArgs e)
-		{
-			GoToURL("https://www.nexusmods.com/Core/Libs/Common/Widgets/PayPalPopUp?user=513981");
 		}
 
 		private void btnTestRun_Click(object sender, EventArgs e)
 		{
 			DialogResult result = MessageBox.Show("Do you want to open the log after the test run?", "Preferences", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+
 			PreferencesManager.OpenLogAfterPatch = result == DialogResult.Yes;
 
 			if (SettingsManager.XmlData.Instructions.Count != 0)
@@ -198,6 +181,14 @@ namespace PatchworkLauncher
 			}
 
 			MessageBox.Show(Resources.NoActiveMods, Resources.ConfigurationError, MessageBoxButtons.OK);
+		}
+
+		private void guiGameName_MouseDown(object sender, MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Left)
+			{
+				this.ReleaseCapture();
+			}
 		}
 
 		private void guiHome_FormClosed(object sender, FormClosedEventArgs e)
@@ -236,27 +227,7 @@ namespace PatchworkLauncher
 
 			this.tbArguments.Text = SettingsManager.XmlData.Arguments;
 
-			// currently used only by LaunchManager.LaunchProcess as argument
-			this.ClientType = SetClientType();
-
-			// async click handlers
-			this.btnLaunchNoMods.Click += (o, args) =>
-			                              {
-				                              ResetData();
-											  this.btnLaunchNoMods_Click(o, args);
-			                              };
-
-			this.btnLaunchWithMods.Click += async (o, args) =>
-			                                {
-				                                ResetData();
-												await this.btnLaunchWithMods_Click(o, args).ConfigureAwait(false);
-			                                };
-
-			this.btnTestRun.Click += (o, args) =>
-			                         {
-				                         ResetData();
-				                         this.btnTestRun_Click(o, args);
-			                         };
+			this.RegisterClickHandlers();
 		}
 
 		private void guiHome_MouseDown(object sender, MouseEventArgs e)
@@ -267,10 +238,41 @@ namespace PatchworkLauncher
 			}
 		}
 
-		private void lblPatchwork_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		/// <summary>
+		/// Registers simple click handlers
+		/// </summary>
+		private void RegisterClickHandlers()
 		{
-			Process process = Process.Start(PatchworkInfo.PatchworkSite);
-			process?.Dispose();
+			this.btnClearArguments.Click += (o, args) => this.tbArguments.Clear();
+
+			this.btnClose.Click += (o, args) => LaunchManager.Exit();
+
+			this.btnHelp.Click += (o, args) => LaunchManager.TryOpenTextFile(LaunchManager.TxtPathReadme);
+
+			this.btnPatreon.Click += (o, args) => GoToURL("https://www.patreon.com/fireundubh");
+
+			this.btnPayPal.Click += (o, args) => GoToURL("https://www.nexusmods.com/Core/Libs/Common/Widgets/PayPalPopUp?user=513981");
+
+			this.btnLaunchNoMods.Click += (o, args) =>
+			                              {
+				                              ResetData();
+				                              this.ClientType = SetClientType();
+				                              LaunchManager.LaunchProcess(this.ClientType);
+			                              };
+
+			this.btnLaunchWithMods.Click += async (o, args) =>
+			                                {
+				                                ResetData();
+				                                await this.btnLaunchWithMods_ClickAsync(o, args).ConfigureAwait(false);
+			                                };
+
+			this.btnTestRun.Click += (o, args) =>
+			                         {
+				                         ResetData();
+				                         this.btnTestRun_Click(o, args);
+			                         };
+
+			this.lblPatchwork.LinkClicked += (o, args) => GoToURL(PatchworkInfo.PatchworkSite);
 		}
 
 		private void tbArguments_TextChanged(object sender, EventArgs e)

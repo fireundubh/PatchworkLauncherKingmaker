@@ -57,11 +57,12 @@
 			this.guiGameName.BackColor = System.Drawing.Color.Transparent;
 			this.guiGameName.Font = new System.Drawing.Font("Tahoma", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
 			this.guiGameName.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-			this.guiGameName.Location = new System.Drawing.Point(54, 31);
+			this.guiGameName.Location = new System.Drawing.Point(52, 31);
 			this.guiGameName.Name = "guiGameName";
 			this.guiGameName.Size = new System.Drawing.Size(422, 45);
 			this.guiGameName.TabIndex = 14;
 			this.guiGameName.Text = "Pathfinder: Kingmaker";
+			this.guiGameName.MouseDown += new System.Windows.Forms.MouseEventHandler(this.guiGameName_MouseDown);
 			// 
 			// guiGameVersion
 			// 
@@ -70,7 +71,7 @@
 			this.guiGameVersion.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
 			this.guiGameVersion.ForeColor = System.Drawing.SystemColors.ControlLight;
 			this.guiGameVersion.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.guiGameVersion.Location = new System.Drawing.Point(490, 66);
+			this.guiGameVersion.Location = new System.Drawing.Point(488, 66);
 			this.guiGameVersion.Margin = new System.Windows.Forms.Padding(0);
 			this.guiGameVersion.Name = "guiGameVersion";
 			this.guiGameVersion.Size = new System.Drawing.Size(120, 18);
@@ -89,7 +90,7 @@
 			this.btnLaunchWithMods.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
 			this.btnLaunchWithMods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnLaunchWithMods.Font = new System.Drawing.Font("Tahoma", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
-			this.btnLaunchWithMods.Location = new System.Drawing.Point(11, 88);
+			this.btnLaunchWithMods.Location = new System.Drawing.Point(9, 88);
 			this.btnLaunchWithMods.Margin = new System.Windows.Forms.Padding(0);
 			this.btnLaunchWithMods.Name = "btnLaunchWithMods";
 			this.btnLaunchWithMods.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
@@ -110,7 +111,7 @@
 			this.btnLaunchNoMods.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
 			this.btnLaunchNoMods.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnLaunchNoMods.Font = new System.Drawing.Font("Tahoma", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
-			this.btnLaunchNoMods.Location = new System.Drawing.Point(11, 143);
+			this.btnLaunchNoMods.Location = new System.Drawing.Point(9, 143);
 			this.btnLaunchNoMods.Margin = new System.Windows.Forms.Padding(0);
 			this.btnLaunchNoMods.Name = "btnLaunchNoMods";
 			this.btnLaunchNoMods.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
@@ -119,7 +120,6 @@
 			this.btnLaunchNoMods.Text = "LAUNCH WITHOUT MODS";
 			this.btnLaunchNoMods.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.btnLaunchNoMods.UseVisualStyleBackColor = false;
-			this.btnLaunchNoMods.Click += new System.EventHandler(this.btnLaunchNoMods_Click);
 			// 
 			// guiPwVersion
 			// 
@@ -128,7 +128,7 @@
 			this.guiPwVersion.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
 			this.guiPwVersion.ForeColor = System.Drawing.SystemColors.ControlLight;
 			this.guiPwVersion.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.guiPwVersion.Location = new System.Drawing.Point(132, 228);
+			this.guiPwVersion.Location = new System.Drawing.Point(130, 228);
 			this.guiPwVersion.Margin = new System.Windows.Forms.Padding(0);
 			this.guiPwVersion.Name = "guiPwVersion";
 			this.guiPwVersion.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -144,7 +144,7 @@
 			this.lblVersion.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
 			this.lblVersion.ForeColor = System.Drawing.SystemColors.ControlLightLight;
 			this.lblVersion.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblVersion.Location = new System.Drawing.Point(79, 228);
+			this.lblVersion.Location = new System.Drawing.Point(77, 228);
 			this.lblVersion.Margin = new System.Windows.Forms.Padding(0);
 			this.lblVersion.Name = "lblVersion";
 			this.lblVersion.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -164,7 +164,7 @@
 			this.btnGamePath.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
 			this.btnGamePath.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnGamePath.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-			this.btnGamePath.Location = new System.Drawing.Point(490, 228);
+			this.btnGamePath.Location = new System.Drawing.Point(488, 228);
 			this.btnGamePath.Margin = new System.Windows.Forms.Padding(0);
 			this.btnGamePath.Name = "btnGamePath";
 			this.btnGamePath.Size = new System.Drawing.Size(120, 24);
@@ -184,7 +184,7 @@
 			this.btnTestRun.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
 			this.btnTestRun.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnTestRun.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
-			this.btnTestRun.Location = new System.Drawing.Point(550, 88);
+			this.btnTestRun.Location = new System.Drawing.Point(548, 88);
 			this.btnTestRun.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnTestRun.Name = "btnTestRun";
 			this.btnTestRun.Size = new System.Drawing.Size(60, 105);
@@ -196,7 +196,7 @@
 			// 
 			this.lblPatchwork.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblPatchwork.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
-			this.lblPatchwork.Location = new System.Drawing.Point(9, 228);
+			this.lblPatchwork.Location = new System.Drawing.Point(7, 228);
 			this.lblPatchwork.Margin = new System.Windows.Forms.Padding(0);
 			this.lblPatchwork.Name = "lblPatchwork";
 			this.lblPatchwork.Size = new System.Drawing.Size(70, 24);
@@ -204,7 +204,6 @@
 			this.lblPatchwork.TabStop = true;
 			this.lblPatchwork.Text = "Patchwork";
 			this.lblPatchwork.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.lblPatchwork.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblPatchwork_LinkClicked);
 			// 
 			// btnHelp
 			// 
@@ -215,14 +214,13 @@
 			this.btnHelp.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
 			this.btnHelp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnHelp.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
-			this.btnHelp.Location = new System.Drawing.Point(559, 9);
+			this.btnHelp.Location = new System.Drawing.Point(557, 9);
 			this.btnHelp.Margin = new System.Windows.Forms.Padding(0);
 			this.btnHelp.Name = "btnHelp";
 			this.btnHelp.Size = new System.Drawing.Size(24, 24);
 			this.btnHelp.TabIndex = 9;
 			this.btnHelp.Text = "?";
 			this.btnHelp.UseVisualStyleBackColor = false;
-			this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
 			// 
 			// tbArguments
 			// 
@@ -230,7 +228,7 @@
 			this.tbArguments.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			this.tbArguments.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.tbArguments.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
-			this.tbArguments.Location = new System.Drawing.Point(170, 200);
+			this.tbArguments.Location = new System.Drawing.Point(168, 200);
 			this.tbArguments.Margin = new System.Windows.Forms.Padding(0);
 			this.tbArguments.Name = "tbArguments";
 			this.tbArguments.Size = new System.Drawing.Size(376, 21);
@@ -242,7 +240,7 @@
 			this.lblArguments.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblArguments.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
 			this.lblArguments.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-			this.lblArguments.Location = new System.Drawing.Point(10, 203);
+			this.lblArguments.Location = new System.Drawing.Point(8, 203);
 			this.lblArguments.Name = "lblArguments";
 			this.lblArguments.Size = new System.Drawing.Size(157, 14);
 			this.lblArguments.TabIndex = 14;
@@ -260,14 +258,13 @@
 			this.btnClearArguments.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
 			this.btnClearArguments.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnClearArguments.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-			this.btnClearArguments.Location = new System.Drawing.Point(550, 200);
+			this.btnClearArguments.Location = new System.Drawing.Point(548, 200);
 			this.btnClearArguments.Margin = new System.Windows.Forms.Padding(0);
 			this.btnClearArguments.Name = "btnClearArguments";
 			this.btnClearArguments.Size = new System.Drawing.Size(60, 21);
 			this.btnClearArguments.TabIndex = 6;
 			this.btnClearArguments.Text = "CLEAR";
 			this.btnClearArguments.UseVisualStyleBackColor = false;
-			this.btnClearArguments.Click += new System.EventHandler(this.btnClearArguments_Click);
 			// 
 			// btnClose
 			// 
@@ -275,20 +272,19 @@
 			this.btnClose.BackColor = System.Drawing.SystemColors.Control;
 			this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnClose.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
-			this.btnClose.Location = new System.Drawing.Point(586, 9);
+			this.btnClose.Location = new System.Drawing.Point(584, 9);
 			this.btnClose.Margin = new System.Windows.Forms.Padding(0);
 			this.btnClose.Name = "btnClose";
 			this.btnClose.Size = new System.Drawing.Size(24, 24);
 			this.btnClose.TabIndex = 10;
 			this.btnClose.Text = "X";
 			this.btnClose.UseVisualStyleBackColor = false;
-			this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
 			// 
 			// guiGameIcon
 			// 
 			this.guiGameIcon.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.guiGameIcon.InitialImage = null;
-			this.guiGameIcon.Location = new System.Drawing.Point(11, 34);
+			this.guiGameIcon.Location = new System.Drawing.Point(9, 34);
 			this.guiGameIcon.Name = "guiGameIcon";
 			this.guiGameIcon.Size = new System.Drawing.Size(37, 33);
 			this.guiGameIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -306,7 +302,7 @@
 			this.btnClientPath.FlatAppearance.MouseOverBackColor = System.Drawing.Color.AliceBlue;
 			this.btnClientPath.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnClientPath.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-			this.btnClientPath.Location = new System.Drawing.Point(365, 228);
+			this.btnClientPath.Location = new System.Drawing.Point(363, 228);
 			this.btnClientPath.Margin = new System.Windows.Forms.Padding(0);
 			this.btnClientPath.Name = "btnClientPath";
 			this.btnClientPath.Size = new System.Drawing.Size(120, 24);
@@ -341,7 +337,7 @@
 			this.btnPayPal.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
 			this.btnPayPal.Image = global::PatchworkLauncher.Properties.Resources.PayPal_32x32;
 			this.btnPayPal.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.btnPayPal.Location = new System.Drawing.Point(328, 143);
+			this.btnPayPal.Location = new System.Drawing.Point(326, 143);
 			this.btnPayPal.Margin = new System.Windows.Forms.Padding(0);
 			this.btnPayPal.Name = "btnPayPal";
 			this.btnPayPal.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
@@ -351,7 +347,6 @@
 			this.btnPayPal.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.btnPayPal.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this.btnPayPal.UseVisualStyleBackColor = false;
-			this.btnPayPal.Click += new System.EventHandler(this.btnPayPal_Click);
 			// 
 			// btnPatreon
 			// 
@@ -366,7 +361,7 @@
 			this.btnPatreon.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
 			this.btnPatreon.Image = global::PatchworkLauncher.Properties.Resources.Patreon_32x32;
 			this.btnPatreon.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.btnPatreon.Location = new System.Drawing.Point(328, 88);
+			this.btnPatreon.Location = new System.Drawing.Point(326, 88);
 			this.btnPatreon.Margin = new System.Windows.Forms.Padding(0);
 			this.btnPatreon.Name = "btnPatreon";
 			this.btnPatreon.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
@@ -376,16 +371,14 @@
 			this.btnPatreon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.btnPatreon.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
 			this.btnPatreon.UseVisualStyleBackColor = false;
-			this.btnPatreon.Click += new System.EventHandler(this.btnPatreon_Click);
 			// 
 			// MainWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.BackColor = System.Drawing.Color.Black;
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-			this.ClientSize = new System.Drawing.Size(620, 261);
+			this.ClientSize = new System.Drawing.Size(620, 260);
 			this.Controls.Add(this.btnPatreon);
 			this.Controls.Add(this.btnPayPal);
 			this.Controls.Add(this.pbClientIcon);
@@ -410,7 +403,7 @@
 			this.KeyPreview = true;
 			this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.MaximizeBox = false;
-			this.MaximumSize = new System.Drawing.Size(811, 679);
+			this.MaximumSize = new System.Drawing.Size(620, 270);
 			this.MinimizeBox = false;
 			this.Name = "MainWindow";
 			this.ShowIcon = false;

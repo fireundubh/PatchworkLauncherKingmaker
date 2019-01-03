@@ -100,16 +100,8 @@ namespace PatchworkLauncher
 			}
 		}
 
-		public static void Idle()
-		{
-			if (State.Value != LaunchManagerState.Idle)
-			{
-				State.Value = LaunchManagerState.Idle;
-			}
-		}
-
 		/// <exception cref="T:System.ComponentModel.Win32Exception">There was an error in launching the process.</exception>
-		public static void LaunchProcess(Client clientType)
+		public static void LaunchProcess(ClientType clientType)
 		{
 			// this is disposed when launching a new process or closing the launcher
 			GameProcess = new Process();
@@ -118,20 +110,19 @@ namespace PatchworkLauncher
 
 			if (clientPath.IsNullOrWhitespace() || !File.Exists(clientPath))
 			{
-				string executableName = AppContextManager.Context.Value.Executable.FullName;
-
-				GameProcess.Configure(executableName, SettingsManager.XmlData.Arguments);
+				GameProcess.Configure(AppContextManager.Context.Value.Executable.FullName, SettingsManager.XmlData.Arguments);
 			}
 			else
 			{
 				string arguments = string.Empty;
 
+				// ReSharper disable once SwitchStatementMissingSomeCases
 				switch (clientType)
 				{
-					case Client.Galaxy:
+					case ClientType.Galaxy:
 						arguments = AppContextManager.Context.Value.GogArguments;
 						break;
-					case Client.Steam:
+					case ClientType.Steam:
 						arguments = AppContextManager.Context.Value.SteamArguments;
 						break;
 				}
@@ -139,17 +130,16 @@ namespace PatchworkLauncher
 				GameProcess.Configure(clientPath, arguments);
 			}
 
-			GameProcess.Exited += (sender, args) => State.Value = LaunchManagerState.Idle;
+			GameProcess.Exited += (o, args) => SetState(LaunchManagerState.Idle);
 
 			// state is not set correctly when running a client, so we handle state changes based on user intent elsewhere (e.g., click actions)
 			if (GameProcess.Start())
 			{
-				State.Value = LaunchManagerState.GameRunning;
+				SetState(LaunchManagerState.GameRunning);
+				return;
 			}
-			else
-			{
-				State.Value = LaunchManagerState.Idle;
-			}
+
+			SetState(LaunchManagerState.Idle);
 		}
 
 		public static void SetClientIcon()
@@ -201,6 +191,14 @@ namespace PatchworkLauncher
 				{
 					Logger.Error(exception, "An exception occurred while setting the client icon image.");
 				}
+			}
+		}
+
+		public static void SetState(LaunchManagerState state)
+		{
+			if (State.Value != state)
+			{
+				State.Value = state;
 			}
 		}
 
@@ -257,43 +255,43 @@ namespace PatchworkLauncher
 		/// <exception cref="T:System.ComponentModel.Win32Exception">There was an error in launching the process.</exception>
 		public async Task LaunchModdedAsync(LaunchType launchType = LaunchType.Patch)
 		{
-			MainWindow.Enabled = false;
-			new Thread(o => AskUnlockGUI(true)).Start();
+			StartUnlockDialog(true);
 
-			State.Value = LaunchManagerState.IsPatching;
+			SetState(LaunchManagerState.IsPatching);
 
 			await this.PatchAsync(launchType).ConfigureAwait(false);
 
-			State.Value = LaunchManagerState.Idle;
+			SetState(LaunchManagerState.Idle);
 
 			LaunchProcess(MainWindow.ClientType);
 		}
 
 		public async Task LaunchTestRunAsync(LaunchType launchType = LaunchType.Test)
 		{
-			MainWindow.Enabled = false;
-			new Thread(o => AskUnlockGUI()).Start();
+			StartUnlockDialog();
 
-			State.Value = LaunchManagerState.IsPatching;
+			SetState(LaunchManagerState.IsPatching);
 
 			XmlHistory history = await this.PatchAsync(launchType).ConfigureAwait(false);
 
-			State.Value = LaunchManagerState.Idle;
+			SetState(LaunchManagerState.Idle);
 
 			PatchingHelper.RestorePatchedFiles(AppContextManager.Context.Value, history.Files);
 
-			if (PreferencesManager.OpenLogAfterPatch)
+			if (!PreferencesManager.OpenLogAfterPatch)
 			{
-				try
-				{
-					string logPath = LogManager.Logs.First(kvp => kvp.Key == "PatchManager").Value;
+				return;
+			}
 
-					TryOpenTextFile(logPath);
-				}
-				catch (Exception exception)
-				{
-					Logger.Error(exception, "Cannot open log file after test run");
-				}
+			try
+			{
+				string logPath = LogManager.Logs.First(kvp => kvp.Key == "PatchManager").Value;
+
+				TryOpenTextFile(logPath);
+			}
+			catch (Exception exception)
+			{
+				Logger.Error(exception, "Cannot open log file after test run");
 			}
 		}
 
@@ -384,11 +382,14 @@ namespace PatchworkLauncher
 
 			try
 			{
-				if (useDefaultEditor && !string.IsNullOrEmpty(defaultEditor))
+				if (useDefaultEditor)
 				{
-					process = Process.Start(defaultEditor, textFilePath);
+					if (!string.IsNullOrEmpty(defaultEditor))
+					{
+						process = Process.Start(defaultEditor, textFilePath);
+					}
 				}
-				else if (!useDefaultEditor)
+				else
 				{
 					process = TryOpenFileFallback(textFilePath);
 				}
@@ -435,6 +436,8 @@ namespace PatchworkLauncher
 
 				MainWindow.InvokeIfRequired(delegate
 				                            {
+												MainWindow.ResetData();
+
 					                            MainWindow.Enabled = true;
 					                            MainWindow.ShowOrFocus();
 				                            });
@@ -445,6 +448,12 @@ namespace PatchworkLauncher
 		{
 			logForm?.Close();
 			logForm?.Dispose();
+		}
+
+		private static void StartUnlockDialog(bool runningGame = false)
+		{
+			MainWindow.Enabled = false;
+			new Thread(o => AskUnlockGUI(runningGame)).Start();
 		}
 
 		private void Initialize()

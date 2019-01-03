@@ -129,7 +129,7 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="GUI\AppContextManager.cs" />
     <Compile Include="GUI\ExceptionManager.cs" />
-    <Compile Include="Enums\Client.cs" />
+    <Compile Include="Enums\ClientType.cs" />
     <Compile Include="GUI\Forms\UnlockMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>

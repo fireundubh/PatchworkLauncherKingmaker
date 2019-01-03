@@ -173,7 +173,7 @@ namespace PatchworkLauncher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Patchwork Launcher is locked while the game is running.{0}{1}{2} (PID: {3}).
+        ///   Looks up a localized string similar to Patchwork Launcher is locked while the game is running. Do not unlock prematurely.{0}{1}{2} (PID: {3}).
         /// </summary>
         internal static string UnlockRunningFormat {
             get {
@@ -182,7 +182,7 @@ namespace PatchworkLauncher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Patchwork Launcher is locked while the game is running..
+        ///   Looks up a localized string similar to Patchwork Launcher is locked while the game is running. Do not unlock prematurely..
         /// </summary>
         internal static string UnlockRunningText {
             get {
@@ -191,7 +191,7 @@ namespace PatchworkLauncher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Patchwork Launcher is locked during the test run process..
+        ///   Looks up a localized string similar to Patchwork Launcher is locked during the test run process. Do not unlock prematurely..
         /// </summary>
         internal static string UnlockTestRunText {
             get {
