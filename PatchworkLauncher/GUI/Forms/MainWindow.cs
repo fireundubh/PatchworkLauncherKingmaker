@@ -263,6 +263,7 @@ namespace PatchworkLauncher
 			this.btnLaunchWithMods.Click += async (o, args) =>
 			                                {
 				                                ResetData();
+				                                this.ClientType = SetClientType();
 				                                await this.btnLaunchWithMods_ClickAsync(o, args).ConfigureAwait(false);
 			                                };
 
